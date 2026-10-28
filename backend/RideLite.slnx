@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/ApiGateway/ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/MatchingPricing/">
+    <Project Path="src/Services/MatchingPricing/MatchingPricing.Application/MatchingPricing.Application.csproj" />
+    <Project Path="src/Services/MatchingPricing/MatchingPricing.Domain/MatchingPricing.Domain.csproj" />
+    <Project Path="src/Services/MatchingPricing/MatchingPricing.Infrastructure/MatchingPricing.Infrastructure.csproj" />
+    <Project Path="src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Payment/">
+    <Project Path="src/Services/Payment/Payment.Application/Payment.Application.csproj" />
+    <Project Path="src/Services/Payment/Payment.Domain/Payment.Domain.csproj" />
+    <Project Path="src/Services/Payment/Payment.Infrastructure/Payment.Infrastructure.csproj" />
+    <Project Path="src/Services/Payment/Payment.Presentation/Payment.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Trip/">
+    <Project Path="src/Services/Trip/Trip.Application/Trip.Application.csproj" />
+    <Project Path="src/Services/Trip/Trip.Domain/Trip.Domain.csproj" />
+    <Project Path="src/Services/Trip/Trip.Infrastructure/Trip.Infrastructure.csproj" />
+    <Project Path="src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MatchingPricing.Domain.Tests/MatchingPricing.Domain.Tests.csproj" />
+    <Project Path="tests/Payment.Domain.Tests/Payment.Domain.Tests.csproj" />
+    <Project Path="tests/Trip.Domain.Tests/Trip.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

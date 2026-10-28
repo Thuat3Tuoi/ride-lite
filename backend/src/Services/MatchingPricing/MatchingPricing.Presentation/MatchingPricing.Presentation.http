@@ -1,0 +1,6 @@
+@MatchingPricing.Presentation_HostAddress = http://localhost:5286
+
+GET {{MatchingPricing.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
