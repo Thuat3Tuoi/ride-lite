@@ -8,6 +8,8 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.MapGet("/payment/health", () => "payment-service active");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
