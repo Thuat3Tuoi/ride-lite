@@ -1,6 +1,7 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
 using Payment.Domain.Entities;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Commands.CreatePaymentProvider;
 
@@ -33,7 +34,7 @@ public sealed class CreatePaymentProviderHandler
 
         if (exists)
         {
-            throw new PaymentProviderAlreadyExistsException(provider.Code);
+            throw new AppException(PaymentErrors.PaymentProviderAlreadyExists);
         }
 
         // 3. Lưu PaymentProvider
@@ -56,4 +57,3 @@ public sealed class CreatePaymentProviderHandler
         );
     }
 }
-

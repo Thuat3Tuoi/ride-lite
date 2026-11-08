@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Commands.DeactivatePaymentProvider;
 
@@ -23,7 +24,7 @@ public sealed class DeactivatePaymentProviderHandler
 
         if (provider is null)
         {
-            throw new PaymentProviderNotFoundException(command.Id);
+            throw new AppException(PaymentErrors.PaymentProviderNotFound);
         }
 
         provider.Deactivate();
@@ -33,4 +34,3 @@ public sealed class DeactivatePaymentProviderHandler
         return new DeactivatePaymentProviderResult(provider.Id, provider.Active);
     }
 }
-

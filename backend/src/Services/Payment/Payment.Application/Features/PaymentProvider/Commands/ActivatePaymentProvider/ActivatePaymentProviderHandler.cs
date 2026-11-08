@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Commands.ActivatePaymentProvider;
 
@@ -23,7 +24,7 @@ public sealed class ActivatePaymentProviderHandler
 
         if (provider is null)
         {
-            throw new PaymentProviderNotFoundException(command.Id);
+            throw new AppException(PaymentErrors.PaymentProviderNotFound);
         }
 
         provider.Activate();
@@ -33,4 +34,3 @@ public sealed class ActivatePaymentProviderHandler
         return new ActivatePaymentProviderResult(provider.Id, provider.Active);
     }
 }
-

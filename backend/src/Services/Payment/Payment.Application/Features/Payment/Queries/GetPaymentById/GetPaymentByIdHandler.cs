@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Payment.Queries.GetPaymentById;
 
@@ -23,7 +24,7 @@ public sealed class GetPaymentByIdHandler
 
         if (payment is null)
         {
-            throw new PaymentNotFoundException(query.Id);
+            throw new AppException(PaymentErrors.NotFound);
         }
 
         return new GetPaymentByIdResult(
@@ -42,4 +43,3 @@ public sealed class GetPaymentByIdHandler
         );
     }
 }
-

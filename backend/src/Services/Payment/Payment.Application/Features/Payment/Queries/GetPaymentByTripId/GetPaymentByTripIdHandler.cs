@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Payment.Queries.GetPaymentByTripId;
 
@@ -23,7 +24,7 @@ public sealed class GetPaymentByTripIdHandler
 
         if (payment is null)
         {
-            throw new PaymentNotFoundException(query.TripId);
+            throw new AppException(PaymentErrors.NotFound);
         }
 
         return new GetPaymentByTripIdResult(
@@ -42,4 +43,3 @@ public sealed class GetPaymentByTripIdHandler
         );
     }
 }
-

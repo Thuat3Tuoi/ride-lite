@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentOption.Commands.DeactivatePaymentOption;
 
@@ -23,7 +24,7 @@ public sealed class DeactivatePaymentOptionHandler
 
         if (option is null)
         {
-            throw new PaymentOptionNotFoundException(command.Id);
+            throw new AppException(PaymentErrors.PaymentOptionNotFound);
         }
 
         option.Deactivate();
@@ -33,4 +34,3 @@ public sealed class DeactivatePaymentOptionHandler
         return new DeactivatePaymentOptionResult(option.Id, option.Active);
     }
 }
-

@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Payment.Commands.ProcessPayment;
 
@@ -23,7 +24,7 @@ public sealed class ProcessPaymentHandler
 
         if (payment is null)
         {
-            throw new PaymentNotFoundException(command.PaymentId);
+            throw new AppException(PaymentErrors.NotFound);
         }
 
         payment.MarkProcessing();
@@ -37,4 +38,3 @@ public sealed class ProcessPaymentHandler
         );
     }
 }
-

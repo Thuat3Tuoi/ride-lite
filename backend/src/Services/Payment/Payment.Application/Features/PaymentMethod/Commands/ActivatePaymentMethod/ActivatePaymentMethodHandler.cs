@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentMethod.Commands.ActivatePaymentMethod;
 
@@ -23,7 +24,7 @@ public sealed class ActivatePaymentMethodHandler
 
         if (method is null)
         {
-            throw new PaymentMethodNotFoundException(command.Id);
+            throw new AppException(PaymentErrors.PaymentMethodNotFound);
         }
 
         method.Activate();
@@ -33,4 +34,3 @@ public sealed class ActivatePaymentMethodHandler
         return new ActivatePaymentMethodResult(method.Id, method.Active);
     }
 }
-

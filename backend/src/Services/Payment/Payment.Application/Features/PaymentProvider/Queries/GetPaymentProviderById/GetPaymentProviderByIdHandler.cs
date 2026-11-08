@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Queries.GetPaymentProviderById;
 
@@ -23,7 +24,7 @@ public sealed class GetPaymentProviderByIdHandler
 
         if (provider is null)
         {
-            throw new PaymentProviderNotFoundException(query.Id);
+            throw new AppException(PaymentErrors.PaymentProviderNotFound);
         }
 
         return new GetPaymentProviderByIdResult(
@@ -35,4 +36,3 @@ public sealed class GetPaymentProviderByIdHandler
         );
     }
 }
-

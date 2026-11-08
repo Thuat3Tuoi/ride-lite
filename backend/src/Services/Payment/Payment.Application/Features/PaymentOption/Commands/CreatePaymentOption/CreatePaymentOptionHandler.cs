@@ -1,6 +1,7 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
 using Payment.Domain.Entities;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentOption.Commands.CreatePaymentOption;
 
@@ -34,7 +35,7 @@ public sealed class CreatePaymentOptionHandler
 
         if (exists)
         {
-            throw new PaymentOptionAlreadyExistsException(option.Code);
+            throw new AppException(PaymentErrors.PaymentOptionAlreadyExists);
         }
 
         // 3. Lưu PaymentOption
@@ -58,4 +59,3 @@ public sealed class CreatePaymentOptionHandler
         );
     }
 }
-

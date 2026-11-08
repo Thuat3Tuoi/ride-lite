@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentOption.Queries.GetPaymentOptionById;
 
@@ -23,7 +24,7 @@ public sealed class GetPaymentOptionByIdHandler
 
         if (option is null)
         {
-            throw new PaymentOptionNotFoundException(query.Id);
+            throw new AppException(PaymentErrors.PaymentOptionNotFound);
         }
 
         return new GetPaymentOptionByIdResult(
@@ -36,4 +37,3 @@ public sealed class GetPaymentOptionByIdHandler
         );
     }
 }
-

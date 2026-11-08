@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentMethod.Queries.GetPaymentMethodById;
 
@@ -23,7 +24,7 @@ public sealed class GetPaymentMethodByIdHandler
 
         if (method is null)
         {
-            throw new PaymentMethodNotFoundException(query.Id);
+            throw new AppException(PaymentErrors.PaymentMethodNotFound);
         }
 
         return new GetPaymentMethodByIdResult(
@@ -34,4 +35,3 @@ public sealed class GetPaymentMethodByIdHandler
         );
     }
 }
-

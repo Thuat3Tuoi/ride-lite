@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 using PaymentEntity = Payment.Domain.Entities.Payment;
 
 namespace Payment.Application.Features.Payment.Commands.CreatePayment;
@@ -36,7 +37,7 @@ public sealed class CreatePaymentHandler
 
             if (exists)
             {
-                throw new DuplicateIdempotencyKeyException(payment.IdempotencyKey);
+                throw new AppException(PaymentErrors.DuplicateIdempotencyKey);
             }
         }
 
@@ -62,4 +63,3 @@ public sealed class CreatePaymentHandler
         );
     }
 }
-

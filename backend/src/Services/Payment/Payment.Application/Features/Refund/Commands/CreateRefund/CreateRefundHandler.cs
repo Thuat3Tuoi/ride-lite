@@ -1,6 +1,7 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
 using Payment.Domain.Entities;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Refund.Commands.CreateRefund;
 
@@ -33,7 +34,7 @@ public sealed class CreateRefundHandler
 
         if (exists)
         {
-            throw new DuplicateIdempotencyKeyException(refund.IdempotencyKey);
+            throw new AppException(PaymentErrors.DuplicateRefundIdempotencyKey);
         }
 
         // 3. Lưu Refund
@@ -58,4 +59,3 @@ public sealed class CreateRefundHandler
         );
     }
 }
-

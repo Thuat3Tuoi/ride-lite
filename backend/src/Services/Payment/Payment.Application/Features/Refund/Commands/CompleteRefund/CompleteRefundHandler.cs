@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Refund.Commands.CompleteRefund;
 
@@ -23,7 +24,7 @@ public sealed class CompleteRefundHandler
 
         if (refund is null)
         {
-            throw new RefundNotFoundException(command.RefundId);
+            throw new AppException(PaymentErrors.RefundNotFound);
         }
 
         refund.MarkSucceeded(command.ProviderRefundId);
@@ -39,4 +40,3 @@ public sealed class CompleteRefundHandler
         );
     }
 }
-

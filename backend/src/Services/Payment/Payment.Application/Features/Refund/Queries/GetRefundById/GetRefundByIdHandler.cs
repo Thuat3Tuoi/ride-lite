@@ -1,5 +1,6 @@
+using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
-using Payment.Application.Common.Exceptions;
+using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Refund.Queries.GetRefundById;
 
@@ -23,7 +24,7 @@ public sealed class GetRefundByIdHandler
 
         if (refund is null)
         {
-            throw new RefundNotFoundException(query.Id);
+            throw new AppException(PaymentErrors.RefundNotFound);
         }
 
         return new GetRefundByIdResult(
@@ -40,4 +41,3 @@ public sealed class GetRefundByIdHandler
         );
     }
 }
-
