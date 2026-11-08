@@ -1,6 +1,60 @@
-@Trip.Presentation_HostAddress = http://localhost:5092
+@HostAddress = http://localhost:5092
 
-GET {{Trip.Presentation_HostAddress}}/weatherforecast/
+### 1. Rider creates a trip. Trip calls Matching and returns a quote (status = Quoted).
+# @name createTrip
+POST {{HostAddress}}/trips
+Content-Type: application/json
+
+{
+  "riderId": 1,
+  "pickupAddress": "1 Nguyen Trai, District 1",
+  "pickupLatitude": 10.7769,
+  "pickupLongitude": 106.7009,
+  "dropoffAddress": "1 Vo Van Kiet, District 1",
+  "dropoffLatitude": 10.7720,
+  "dropoffLongitude": 106.7050
+}
+
+### Set the id returned by the request above.
+@tripId = {{createTrip.response.body.$.id}}
+
+### 2. Inspect the trip.
+GET {{HostAddress}}/trips/{{tripId}}
 Accept: application/json
 
-###
+### 3. Rider confirms the quote (status = AwaitingDriver).
+POST {{HostAddress}}/trips/{{tripId}}/confirm-quote
+
+### 4. Driver accepts the trip (status = EnRoute).
+POST {{HostAddress}}/trips/{{tripId}}/driver-accept
+Content-Type: application/json
+
+{
+  "driverId": 501
+}
+
+### 5. Driver arrives at the pickup point (status = DriverArrived).
+POST {{HostAddress}}/trips/{{tripId}}/arrive
+
+### 6. Rider is picked up (status = PickedUp).
+POST {{HostAddress}}/trips/{{tripId}}/pickup
+
+### 7. Rider is dropped off. RideCompleted is published (status = PaymentPending).
+POST {{HostAddress}}/trips/{{tripId}}/dropoff
+
+### 8. Simulate PaymentSettled (status = Paid).
+POST {{HostAddress}}/trips/{{tripId}}/payment-settled
+
+### 9. Simulate PaymentFailed. The trip stays in PaymentPending so payment can be retried.
+POST {{HostAddress}}/trips/{{tripId}}/payment-failed
+
+### Alternative: rider rejects the quote (status = Cancelled, cancelledBy = Rider).
+POST {{HostAddress}}/trips/{{tripId}}/reject-quote
+
+### Alternative: driver rejects a trip. After MaxDriverRejectCount the trip fails with cancelledBy = System.
+POST {{HostAddress}}/trips/{{tripId}}/driver-reject
+Content-Type: application/json
+
+{
+  "driverId": 501
+}
