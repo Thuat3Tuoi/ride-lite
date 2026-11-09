@@ -1,6 +1,8 @@
+using Trip.Domain.Shared;
+
 namespace Trip.Domain.ValueObjects;
 
-public readonly record struct Money
+public sealed class Money : ValueObject
 {
     public Money(decimal amount)
     {
@@ -20,6 +22,12 @@ public readonly record struct Money
     public decimal Amount { get; }
 
     public string Currency => "VND";
+
+    protected override IEnumerable<object?> GetEqualityComponents()
+    {
+        yield return Amount;
+        yield return Currency;
+    }
 
     public override string ToString() => $"{Amount:0} {Currency}";
 }

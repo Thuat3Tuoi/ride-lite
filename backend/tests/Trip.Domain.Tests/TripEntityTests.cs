@@ -1,6 +1,7 @@
 using Trip.Domain.Entities;
-using Trip.Domain.Enums;
-using Trip.Domain.Events;
+using Trip.Domain.Enumerators;
+using Trip.Domain.DomainEvents;
+using Trip.Domain.Constants;
 using Trip.Domain.ValueObjects;
 
 namespace Trip.Domain.Tests;
@@ -79,13 +80,13 @@ public class TripEntityTests
     {
         var trip = TripTestFactory.AwaitingDriver();
 
-        for (var i = 0; i < TripEntity.MaxDriverRejectCount; i++)
+        for (var i = 0; i < TripRules.MaxDriverRejectCount; i++)
         {
             trip.DriverReject(501);
         }
 
         Assert.Equal(TripStatus.AwaitingDriver, trip.Status);
-        Assert.Equal(TripEntity.MaxDriverRejectCount, trip.DriverRejectCount);
+        Assert.Equal(TripRules.MaxDriverRejectCount, trip.DriverRejectCount);
         Assert.Null(trip.DriverId);
         Assert.Empty(trip.DomainEvents.OfType<TripFailed>());
     }
@@ -95,7 +96,7 @@ public class TripEntityTests
     {
         var trip = TripTestFactory.AwaitingDriver();
 
-        for (var i = 0; i <= TripEntity.MaxDriverRejectCount; i++)
+        for (var i = 0; i <= TripRules.MaxDriverRejectCount; i++)
         {
             trip.DriverReject(501);
         }
@@ -170,7 +171,7 @@ public class TripEntityTests
     {
         var trip = TripTestFactory.NewTrip();
 
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.Pickup());
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.Pickup());
     }
 
     [Fact]
@@ -179,9 +180,9 @@ public class TripEntityTests
         var trip = TripTestFactory.PaymentPending();
         trip.PaymentSettled();
 
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.PaymentFailed());
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.Cancel(CancelledBy.Rider));
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.DriverAccept(1));
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.PaymentFailed());
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.Cancel(CancelledBy.Rider));
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.DriverAccept(1));
     }
 
     [Fact]
@@ -190,8 +191,8 @@ public class TripEntityTests
         var trip = TripTestFactory.Quoted();
         trip.RejectQuote();
 
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.ConfirmQuote());
-        Assert.Throws<Trip.Domain.Exceptions.DomainException>(() => trip.DriverAccept(1));
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.ConfirmQuote());
+        Assert.Throws<Trip.Domain.Exceptions.InvalidTripTransitionException>(() => trip.DriverAccept(1));
     }
 
     [Fact]

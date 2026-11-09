@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Trip.Application.Abstractions;
+using Trip.Application.Abstractions.Messaging;
 
 namespace Trip.Infrastructure.Messaging;
 

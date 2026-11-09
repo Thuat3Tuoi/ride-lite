@@ -1,6 +1,8 @@
+using Trip.Domain.Shared;
+
 namespace Trip.Domain.ValueObjects;
 
-public readonly record struct GeoPoint
+public sealed class GeoPoint : ValueObject
 {
     public GeoPoint(decimal latitude, decimal longitude)
     {
@@ -21,4 +23,12 @@ public readonly record struct GeoPoint
     public decimal Latitude { get; }
 
     public decimal Longitude { get; }
+
+    protected override IEnumerable<object?> GetEqualityComponents()
+    {
+        yield return Latitude;
+        yield return Longitude;
+    }
+
+    public override string ToString() => $"({Latitude}, {Longitude})";
 }

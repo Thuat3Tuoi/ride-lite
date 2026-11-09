@@ -7,6 +7,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.MapGet("/matching-pricing/health", () => "matching-pricing active");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

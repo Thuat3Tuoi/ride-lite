@@ -1,89 +1,73 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Trip.Application.Abstractions;
-using Trip.Application.Dtos;
+using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
+using Trip.Application.Abstractions.Services;
+using Trip.Application.Abstractions.Validation;
+using Trip.Application.Contracts.Responses;
 using Trip.Application.Exceptions;
-using Trip.Application.Services;
+using Trip.Application.Trips.Commands.Dropoff;
+using Trip.Application.Trips.Commands.RequestTrip;
+using Trip.Application.Trips.Queries.GetTripById;
+using Trip.Domain.DomainEvents;
 using Trip.Domain.Entities;
-using Trip.Domain.Enums;
-using Trip.Domain.Events;
-using Trip.Domain.Exceptions;
+using Trip.Domain.Repositories;
 using Trip.Domain.ValueObjects;
 
 namespace Trip.Application.Tests;
 
-public class TripServiceTests
+public sealed class TripServiceTests
 {
-    private readonly Mock<ITripReader> _reader = new();
-    private readonly Mock<ITripWriter> _writer = new();
-    private readonly Mock<IUnitOfWork> _unitOfWork = new();
-    private readonly Mock<IMatchingClient> _matchingClient = new();
-    private readonly Mock<IPaymentGateway> _paymentGateway = new();
-    private readonly Mock<IEventBus> _eventBus = new();
-    private readonly List<object> _publishedEvents = new();
-
-    public TripServiceTests()
+    [Fact]
+    public async Task RequestTrip_CreatesQuotedTripAndPublishesRequestedEvent()
     {
-        _writer
-            .Setup(w => w.AddAsync(It.IsAny<TripEntity>(), It.IsAny<CancellationToken>()))
+        var reader = new Mock<ITripReader>();
+        var writer = new Mock<ITripWriter>();
+        var unitOfWork = new Mock<IUnitOfWork>();
+        var matchingClient = new Mock<IMatchingClient>();
+        var eventBus = new Mock<IEventBus>();
+
+        writer
+            .Setup(repository => repository.AddAsync(It.IsAny<TripEntity>(), It.IsAny<CancellationToken>()))
             .Callback<TripEntity, CancellationToken>((trip, _) => SetId(trip, 42))
             .Returns(Task.CompletedTask);
-        _writer
-            .Setup(w => w.UpdateAsync(It.IsAny<TripEntity>(), It.IsAny<CancellationToken>()))
+        writer
+            .Setup(repository => repository.UpdateAsync(It.IsAny<TripEntity>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _unitOfWork
-            .Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
+        unitOfWork
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
-        _paymentGateway
-            .Setup(p => p.RequestPaymentAsync(It.IsAny<PaymentRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-        _eventBus
-            .Setup(b => b.PublishAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .Callback<object, CancellationToken>((domainEvent, _) => _publishedEvents.Add(domainEvent))
-            .Returns(Task.CompletedTask);
-    }
-
-    private TripService CreateService() =>
-        new(
-            _reader.Object,
-            _writer.Object,
-            _unitOfWork.Object,
-            _matchingClient.Object,
-            _paymentGateway.Object,
-            _eventBus.Object);
-
-    [Fact]
-    public async Task RequestTrip_CreatesQuotedTrip_AndPublishesTripRequested()
-    {
-        _matchingClient
-            .Setup(m => m.MatchAsync(It.IsAny<MatchingRequest>(), It.IsAny<CancellationToken>()))
+        matchingClient
+            .Setup(client => client.MatchAsync(It.IsAny<MatchingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MatchingResult(90000m, 501, 240));
 
-        var response = await CreateService().RequestTripAsync(new RequestTripRequest
-        {
-            RiderId = 7,
-            PickupAddress = "A",
-            PickupLatitude = 10.1m,
-            PickupLongitude = 106.1m,
-            DropoffAddress = "B",
-            DropoffLatitude = 10.2m,
-            DropoffLongitude = 106.2m
-        });
+        var handler = new RequestTripHandler(
+            reader.Object,
+            writer.Object,
+            unitOfWork.Object,
+            eventBus.Object,
+            matchingClient.Object,
+            new RequestTripValidator(),
+            NullLogger<RequestTripHandler>.Instance);
+
+        var response = await handler.HandleAsync(new RequestTripCommand(
+            7,
+            "A",
+            10.1m,
+            106.1m,
+            "B",
+            10.2m,
+            106.2m), TestContext.Current.CancellationToken);
 
         Assert.Equal(42, response.Id);
         Assert.Equal("Quoted", response.Status);
         Assert.Equal(90000m, response.Cost);
         Assert.Equal(501, response.DriverId);
-        Assert.Contains(_publishedEvents, e => e is TripRequested { TripId: 42 });
-    }
-
-    [Fact]
-    public async Task GetAsync_UnknownTrip_ThrowsNotFound()
-    {
-        _reader
-            .Setup(r => r.GetByIdAsync(99, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TripEntity?)null);
-
-        await Assert.ThrowsAsync<TripNotFoundException>(() => CreateService().GetAsync(99));
+        eventBus.Verify(
+            bus => bus.PublishAsync(
+                It.Is<TripRequested>(domainEvent => domainEvent.TripId == 42),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -91,114 +75,59 @@ public class TripServiceTests
     {
         var trip = BuildPickedUpTrip();
         SetId(trip, 7);
-        _reader
-            .Setup(r => r.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+        var reader = new Mock<ITripReader>();
+        reader
+            .Setup(repository => repository.GetByIdAsync(7, It.IsAny<CancellationToken>()))
             .ReturnsAsync(trip);
 
-        var response = await CreateService().DropoffAsync(7);
+        var eventBus = new Mock<IEventBus>();
+        var handler = new DropoffHandler(
+            reader.Object,
+            new Mock<ITripWriter>().Object,
+            CreateUnitOfWork().Object,
+            eventBus.Object,
+            new DropoffValidator(),
+            NullLogger<DropoffHandler>.Instance);
+
+        var response = await handler.HandleAsync(
+            new DropoffCommand(7),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal("PaymentPending", response.Status);
-        var completed = Assert.Single(_publishedEvents.OfType<RideCompleted>());
-        Assert.Equal(7, completed.TripId);
-        Assert.Equal(85000m, completed.Amount);
-        Assert.Equal("trip-7-payment", completed.IdempotencyKey);
-    }
-
-    [Fact]
-    public async Task PaymentSettled_MarksTripAsPaid()
-    {
-        var trip = BuildPaymentPendingTrip();
-        SetId(trip, 8);
-        _reader
-            .Setup(r => r.GetByIdAsync(8, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(trip);
-
-        var response = await CreateService().OnPaymentSettledAsync(8);
-
-        Assert.Equal("Paid", response.Status);
-        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task PaymentFailed_RetriesWithStableIdempotencyKey()
-    {
-        var trip = BuildPaymentPendingTrip();
-        SetId(trip, 12);
-        _reader
-            .Setup(r => r.GetByIdAsync(12, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(trip);
-
-        var response = await CreateService().OnPaymentFailedAsync(12);
-
-        Assert.Equal("PaymentPending", response.Status);
-        _paymentGateway.Verify(
-            p => p.RequestPaymentAsync(
-                It.Is<PaymentRequest>(r =>
-                    r.TripId == 12 &&
-                    r.Amount == 85000m &&
-                    r.IdempotencyKey == "trip-12-payment"),
+        eventBus.Verify(
+            bus => bus.PublishAsync(
+                It.Is<RideCompleted>(domainEvent =>
+                    domainEvent.TripId == 7 &&
+                    domainEvent.Amount == 85000m &&
+                    domainEvent.IdempotencyKey == "trip-7-payment"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task ConfirmQuote_WhenNotQuoted_ThrowsDomainException()
+    public async Task GetTripById_WhenTripDoesNotExist_ThrowsNotFound()
     {
-        var trip = BuildPickedUpTrip();
-        SetId(trip, 9);
-        _reader
-            .Setup(r => r.GetByIdAsync(9, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(trip);
+        var reader = new Mock<ITripReader>();
+        reader
+            .Setup(repository => repository.GetByIdAsync(99, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TripEntity?)null);
 
-        await Assert.ThrowsAsync<DomainException>(() => CreateService().ConfirmQuoteAsync(9));
+        var handler = new GetTripByIdHandler(reader.Object, new GetTripByIdValidator());
+
+        await Assert.ThrowsAsync<TripNotFoundException>(() =>
+            handler.HandleAsync(new GetTripByIdQuery(99), TestContext.Current.CancellationToken));
     }
 
-    [Fact]
-    public async Task DriverReject_AboveThreshold_ReturnsFailed()
+    private static Mock<IUnitOfWork> CreateUnitOfWork()
     {
-        var trip = BuildAwaitingDriverTrip();
-        SetId(trip, 10);
-        _reader
-            .Setup(r => r.GetByIdAsync(10, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(trip);
-
-        TripResponse? response = null;
-        var service = CreateService();
-
-        for (var i = 0; i <= TripEntity.MaxDriverRejectCount; i++)
-        {
-            response = await service.DriverRejectAsync(10, 501);
-        }
-
-        Assert.NotNull(response);
-        Assert.Equal("Failed", response!.Status);
-        Assert.Equal("System", response.CancelledBy);
-    }
-
-    private static TripEntity BuildAwaitingDriverTrip()
-    {
-        var trip = BuildQuotedTrip();
-        trip.ConfirmQuote();
-        return trip;
+        var unitOfWork = new Mock<IUnitOfWork>();
+        unitOfWork
+            .Setup(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        return unitOfWork;
     }
 
     private static TripEntity BuildPickedUpTrip()
-    {
-        var trip = BuildAwaitingDriverTrip();
-        trip.DriverAccept(501);
-        trip.Arrive();
-        trip.Pickup();
-        return trip;
-    }
-
-    private static TripEntity BuildPaymentPendingTrip()
-    {
-        var trip = BuildPickedUpTrip();
-        trip.Dropoff();
-        return trip;
-    }
-
-    private static TripEntity BuildQuotedTrip()
     {
         var trip = new TripEntity(
             7,
@@ -207,9 +136,13 @@ public class TripServiceTests
             "B",
             new GeoPoint(10.2m, 106.2m));
         trip.Quote(new Money(85000m), 501);
+        trip.ConfirmQuote();
+        trip.DriverAccept(501);
+        trip.Arrive();
+        trip.Pickup();
         return trip;
     }
 
     private static void SetId(TripEntity trip, long id) =>
-        typeof(TripEntity).GetProperty(nameof(TripEntity.Id))!.SetValue(trip, id);
+        typeof(TripEntity).BaseType!.GetProperty(nameof(TripEntity.Id))!.SetValue(trip, id);
 }

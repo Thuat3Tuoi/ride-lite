@@ -1,16 +1,12 @@
-using Trip.Domain.Enums;
-using Trip.Domain.Events;
-using Trip.Domain.States;
+using Trip.Domain.Enumerators;
+using Trip.Domain.Shared;
+using Trip.Domain.Entities.States;
 using Trip.Domain.ValueObjects;
 
 namespace Trip.Domain.Entities;
 
-public class TripEntity
+public class TripEntity : AggregateRoot<long>
 {
-    public const int MaxDriverRejectCount = 3;
-
-    private readonly List<IDomainEvent> _domainEvents = new();
-
     private TripEntity()
     {
         PickupAddress = string.Empty;
@@ -50,8 +46,6 @@ public class TripEntity
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
     }
-
-    public long Id { get; private set; }
 
     public long RiderId { get; private set; }
 
@@ -97,8 +91,6 @@ public class TripEntity
 
     public GeoPoint DropoffLocation => new(DropoffLatitude, DropoffLongitude);
 
-    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents;
-
     private TripState State => TripState.For(Status);
 
     public void Quote(Money cost, long driverId)
@@ -139,15 +131,6 @@ public class TripEntity
 
     public void Cancel(CancelledBy cancelledBy, string? reason = null) => State.Cancel(this, cancelledBy, reason);
 
-    public IReadOnlyList<IDomainEvent> DequeueDomainEvents()
-    {
-        var events = _domainEvents.ToArray();
-        _domainEvents.Clear();
-        return events;
-    }
-
-    public void ClearDomainEvents() => _domainEvents.Clear();
-
     internal void TransitionTo(TripStatus status)
     {
         Status = status;
@@ -176,6 +159,4 @@ public class TripEntity
     }
 
     internal void IncrementDriverRejectCount() => DriverRejectCount++;
-
-    internal void Raise(IDomainEvent domainEvent) => _domainEvents.Add(domainEvent);
 }

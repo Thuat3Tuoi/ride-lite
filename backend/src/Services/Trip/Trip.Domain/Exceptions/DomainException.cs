@@ -1,6 +1,6 @@
 namespace Trip.Domain.Exceptions;
 
-public sealed class DomainException : Exception
+public class DomainException : Exception
 {
     public DomainException(string message) : base(message)
     {

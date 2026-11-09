@@ -2,7 +2,7 @@
 
 Tài liệu dành cho thành viên mới cần chạy dự án trên máy cá nhân. Sau khi hoàn thành, bạn có thể khởi động gateway, ba dịch vụ backend, gọi API mẫu và chạy kiểm thử.
 
-**Phạm vi hiện tại:** mã nguồn mới có bộ khung backend. Chưa có giao diện frontend, nghiệp vụ đặt xe, thanh toán thực tế hoặc cơ sở dữ liệu được kết nối. API dự báo thời tiết là dữ liệu mẫu để kiểm tra ứng dụng.
+**Phạm vi hiện tại:** backend đã có luồng Trip độc lập từ tạo chuyến đến thanh toán giả lập, dùng PostgreSQL riêng cho Trip. Chưa có giao diện frontend hoặc tích hợp thật với Matching/Payment; các cổng ra ngoài vẫn dùng Fake/InMemory.
 
 Các lệnh dưới đây dùng cú pháp **Bash**, chạy trong Git Bash trên Windows hoặc Bash trên Linux. Không cần cài WSL để dùng Git Bash.
 
@@ -20,7 +20,7 @@ Tải SDK từ [trang .NET 10 của Microsoft](https://dotnet.microsoft.com/en-u
 
 `backend/global.json` đặt `version` là `10.0.401` và `rollForward` là `latestFeature`. Vì vậy, chỉ thấy máy có “.NET 10” chưa đủ: SDK cũ hơn như `10.0.100` không đáp ứng cấu hình này. Tham khảo [quy tắc chọn SDK](https://learn.microsoft.com/en-us/dotnet/core/tools/global-json) nếu máy có nhiều phiên bản.
 
-Hiện chưa cần cài PostgreSQL, Docker, Node.js hoặc công cụ frontend. Mã nguồn cũng chưa yêu cầu khóa API hay tài khoản dịch vụ bên ngoài.
+Trip cần PostgreSQL đang chạy ở local để khởi động và tự áp dụng migration trong môi trường Development. Docker, Node.js và khóa API chưa bắt buộc nếu chỉ chạy Trip với các adapter giả lập.
 
 ## 2. Lấy mã nguồn và mở đúng thư mục
 
@@ -99,7 +99,7 @@ Các ứng dụng hiện chạy độc lập, chưa có yêu cầu gọi qua l�
 dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http
 ```
 
-Địa chỉ: <http://localhost:5092/weatherforecast>.
+Địa chỉ health check: <http://localhost:5092/trip/health>.
 
 ### Terminal 2: MatchingPricing
 
@@ -139,7 +139,7 @@ Mở các địa chỉ ở mục 4 bằng trình duyệt. Nếu dùng curl, mở
 
 ```bash
 curl -i --fail http://localhost:5221/
-curl -i --fail http://localhost:5092/weatherforecast
+curl -i --fail http://localhost:5092/trip/health
 curl -i --fail http://localhost:5286/weatherforecast
 curl -i --fail http://localhost:5219/weatherforecast
 ```
@@ -148,7 +148,7 @@ Kết quả mong đợi:
 
 - Cả bốn yêu cầu có trạng thái `200 OK`.
 - Gateway trả về `Hello World!`.
-- Mỗi dịch vụ trả về mảng JSON gồm 5 bản ghi, có các trường `date`, `temperatureC`, `temperatureF`, `summary`. Dữ liệu được tạo ngẫu nhiên, nên nội dung có thể khác nhau giữa các lần gọi.
+- Trip trả về `trip-service active`; MatchingPricing và Payment vẫn trả về dữ liệu mẫu tại `/weatherforecast`.
 
 ### Xem tài liệu API
 
@@ -170,12 +170,18 @@ Trong một terminal tại thư mục `backend/`:
 dotnet test --solution RideLite.slnx
 ```
 
-Kết quả hiện tại mong đợi: **3 kiểm thử thành công, 0 thất bại**. Cả ba đều là bài kiểm thử mẫu `Assert.True(true)`, dùng để xác nhận bộ công cụ chạy được; chưa kiểm tra nghiệp vụ.
+Kết quả mong đợi là build và toàn bộ kiểm thử thành công; Trip có kiểm thử domain và application cho các transition, handler và domain event.
 
 Để chạy riêng bộ kiểm thử của Trip:
 
 ```bash
 dotnet test --project tests/Trip.Domain.Tests/Trip.Domain.Tests.csproj
+```
+
+Dùng thêm lệnh sau để chạy kiểm thử application của Trip:
+
+```bash
+dotnet test --project tests/Trip.Application.Tests/Trip.Application.Tests.csproj
 ```
 
 Dự án chọn `Microsoft.Testing.Platform` trong `global.json`, vì vậy dùng cú pháp `--solution` hoặc `--project` như trên.
@@ -207,13 +213,19 @@ Ví dụ chạy Trip ở cổng `5500`, nếu cổng này còn trống:
 dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http -- --urls http://localhost:5500
 ```
 
-Sau đó kiểm tra <http://localhost:5500/weatherforecast>. Cách này chỉ đổi cổng của lần chạy hiện tại, thuận tiện khi máy có ứng dụng khác đang chiếm cổng mặc định.
+Sau đó kiểm tra <http://localhost:5500/trip/health>. Cách này chỉ đổi cổng của lần chạy hiện tại, thuận tiện khi máy có ứng dụng khác đang chiếm cổng mặc định.
 
 Nếu nhóm muốn thay đổi cổng mặc định, cập nhật `applicationUrl` trong profile `http` của `Properties/launchSettings.json` tương ứng. Đồng thời cập nhật URL trong tệp `.http` của dịch vụ và các địa chỉ liên quan trong tài liệu.
 
 ### Cơ sở dữ liệu và biến môi trường
 
-Ba dự án Infrastructure đã tham chiếu `Npgsql.EntityFrameworkCore.PostgreSQL` phiên bản `10.0.3`. Tuy nhiên, hiện chưa có `DbContext`, migration, chuỗi kết nối hay đăng ký kết nối cơ sở dữ liệu trong ứng dụng. Vì vậy, chưa có bước tạo database hoặc chạy migration để cài đặt.
+Dự án Trip dùng `Npgsql.EntityFrameworkCore.PostgreSQL`, có `TripDbContext`, migration và chuỗi `TripDb` trong `src/Services/Trip/Trip.Presentation/appsettings.Development.json`. Khi chạy Development, ứng dụng tự áp dụng migration vào database `ridelite_trip`.
+
+Nếu PostgreSQL yêu cầu mật khẩu, không ghi mật khẩu vào Git. Hãy ghi đè chuỗi kết nối bằng biến cấu hình `ConnectionStrings__TripDb`, ví dụ:
+
+```bash
+export ConnectionStrings__TripDb='Host=localhost;Port=5432;Database=ridelite_trip;Username=postgres;Password=<mat-khau>'
+```
 
 Dự án cũng chưa có tệp `.env` hoặc đoạn cấu hình đọc tệp `.env`. Các giá trị mặc định trong những tệp nêu trên đã đủ cho các API mẫu.
 
@@ -228,7 +240,7 @@ dotnet ef --version
 
 Manifest hiện khai báo `dotnet-ef` phiên bản **10.0.14**. Dùng đường dẫn manifest cụ thể vì tệp đang nằm ở `backend/dotnet-tools.json`; tham khảo [tài liệu lệnh khôi phục công cụ](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-restore).
 
-Bước này không bắt buộc để chạy API mẫu. Chưa chạy lệnh tạo hoặc cập nhật cơ sở dữ liệu khi dự án chưa có `DbContext`.
+Bước này không bắt buộc nếu chỉ chạy API với migration đã có sẵn; dùng khi cần tạo migration mới.
 
 ## 7. Các lỗi thường gặp và cách xử lý
 
@@ -277,7 +289,7 @@ Kiểm tra terminal của ứng dụng còn mở và đã có dòng `Now listeni
 
 ### Nhận lỗi 404 hoặc không thấy Swagger
 
-- Với Trip, MatchingPricing và Payment: mở `/weatherforecast`; các dịch vụ chưa có trang tại `/`.
+- Với Trip: mở `/trip/health`; MatchingPricing và Payment vẫn dùng `/weatherforecast`.
 - Với gateway: mở `/`; chưa có đường dẫn chuyển tiếp như `/trip` hoặc `/payment`.
 - Với tài liệu API: mở `/openapi/v1.json` trên cổng dịch vụ khi môi trường là `Development`; `/swagger` chưa được cấu hình.
 
@@ -293,6 +305,6 @@ Dùng `dotnet test --solution RideLite.slnx` tại `backend/`. Nếu chạy riê
 - [ ] Các ứng dụng cần dùng khởi động ở đúng cổng.
 - [ ] API mẫu của từng ứng dụng đang chạy trả về `200 OK`.
 - [ ] OpenAPI của dịch vụ mở được trong môi trường `Development`.
-- [ ] `dotnet test --solution RideLite.slnx` có 3 kiểm thử thành công.
+- [ ] `dotnet test --solution RideLite.slnx` hoàn tất không lỗi.
 
 Khi hoàn thành các bước trên, môi trường đã sẵn sàng để phát triển phần backend hiện có. Đọc [README tổng quan](../README.md) để nắm cấu trúc và phạm vi của dự án.
