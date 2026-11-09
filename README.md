@@ -12,7 +12,7 @@ Thành viên mới nên đọc [Hướng dẫn cài đặt và cấu hình](docs
 
 - Chạy độc lập ba dịch vụ backend bằng ASP.NET Core trên .NET 10.
 - Gọi API mẫu `GET /weatherforecast` ở mỗi dịch vụ để xác nhận ứng dụng hoạt động.
-- Xem tài liệu OpenAPI dạng JSON trong môi trường phát triển.
+- Xem tài liệu OpenAPI và gửi request bằng Swagger UI trong môi trường phát triển.
 - Chạy ứng dụng gateway với endpoint `GET /` trả về `Hello World!`.
 - Chạy ba dự án kiểm thử mẫu bằng xUnit và Microsoft.Testing.Platform.
 
@@ -81,7 +81,15 @@ Giữ terminal này mở và truy cập địa chỉ tương ứng bằng trình
 
 Mỗi địa chỉ chỉ hoạt động khi ứng dụng tương ứng đang chạy. Làm theo [cách chạy đủ bốn ứng dụng](docs/HUONG_DAN_CAI_DAT.md#4-khởi-chạy-các-ứng-dụng) nếu cần kiểm tra toàn bộ backend. Nhấn `Ctrl+C` tại từng terminal để dừng.
 
-Ba dịch vụ cung cấp tài liệu API tại đường dẫn `/openapi/v1.json` trên cổng của mình khi chạy với profile `http`. Dự án chưa có giao diện Swagger UI.
+Chạy từng service với profile `http` để mở Swagger UI và thử API bằng **Try it out → Execute**:
+
+| Service | Swagger UI |
+| --- | --- |
+| Trip | <http://localhost:5001/swagger> |
+| MatchingPricing | <http://localhost:5002/swagger> |
+| Payment | <http://localhost:5003/swagger> |
+
+Swagger UI và tài liệu JSON `/openapi/v1.json` chỉ bật trong môi trường `Development`. Profile `http` có cấu hình mở trình duyệt tại Swagger khi công cụ chạy hỗ trợ `launchBrowser`; nếu trình duyệt không tự mở, dùng URL trong bảng. Xem [cách chạy và thử Swagger](docs/HUONG_DAN_CAI_DAT.md#xem-tài-liệu-api).
 
 Chạy bộ kiểm thử từ thư mục `backend/`:
 
@@ -109,6 +117,6 @@ Xem [hướng dẫn cấu hình](docs/HUONG_DAN_CAI_DAT.md#6-cấu-hình-trên-m
 | Không tải được các gói NuGet | Kiểm tra Internet và quyền truy cập nguồn gói, rồi chạy lại `dotnet restore RideLite.slnx`. |
 | Cổng đang được sử dụng | Dừng phiên chạy cũ bằng `Ctrl+C` hoặc dùng cổng khác theo hướng dẫn. |
 | Nhận lỗi 404 khi mở dịch vụ | Dùng `/weatherforecast` cho ba dịch vụ; đường dẫn `/` chỉ có ở gateway. |
-| Không thấy `/swagger` | Dùng `/openapi/v1.json`; hiện chưa cài Swagger UI. |
+| Không thấy `/swagger` | Chạy service với `--launch-profile http`, kiểm tra môi trường `Development` và cổng 5001/5002/5003 tương ứng. |
 
 Tham khảo [phần xử lý lỗi chi tiết](docs/HUONG_DAN_CAI_DAT.md#7-các-lỗi-thường-gặp-và-cách-xử-lý).

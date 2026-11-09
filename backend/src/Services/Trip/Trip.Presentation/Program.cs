@@ -1,18 +1,23 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Dang ky controller va tai lieu API cua service
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 app.MapGet("/trip/health", () => "trip-service active");
 
-// Configure the HTTP request pipeline.
+// Chi mo tai lieu va giao dien thu API trong moi truong phat trien
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Trip API v1");
+        options.DocumentTitle = "RideLite - Trip API";
+        options.DisplayRequestDuration();
+    });
 }
 
 app.UseAuthorization();

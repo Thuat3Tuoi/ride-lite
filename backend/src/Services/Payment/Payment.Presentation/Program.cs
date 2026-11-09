@@ -4,7 +4,7 @@ using Payment.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Presentation
+// Dang ky controller va xu ly loi HTTP cua service
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -13,10 +13,10 @@ builder.Services.AddControllers()
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// Infrastructure
+// Dang ky cac phu thuoc ha tang cua module
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Tai su dung OpenAPI lam nguon tai lieu cho Swagger UI
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -28,10 +28,16 @@ app.MapGet("/payment/health", () => Results.Ok(new
     status = "payment-service active"
 }));
 
-// Configure the HTTP request pipeline.
+// Chi mo tai lieu va giao dien thu API trong moi truong phat trien
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Payment API v1");
+        options.DocumentTitle = "RideLite - Payment API";
+        options.DisplayRequestDuration();
+    });
 }
 
 app.UseAuthorization();

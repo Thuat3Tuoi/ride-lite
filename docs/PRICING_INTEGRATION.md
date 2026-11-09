@@ -132,6 +132,8 @@ Trip dùng HttpClient từ DI với timeout **5 giây** và truyền Cancellatio
 
 ## Chạy và gọi thử
 
+Để thử trực tiếp trên trình duyệt, chạy MatchingPricing với profile `http`, mở <http://localhost:5002/swagger>, chọn `POST /matching-pricing/quote` → **Try it out**, chọn mẫu **Standard**, **Surge**, **Promo** hoặc **Surge + Promo** trong **Examples**, rồi nhấn **Execute**. Có thể sửa JSON theo request mẫu bên trên. Swagger UI chỉ bật trong `Development` và gọi service trực tiếp, không cần chạy Gateway.
+
 Từ thư mục `backend`, chạy hai lệnh trong hai terminal:
 
 ```powershell

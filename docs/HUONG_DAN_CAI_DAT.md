@@ -152,15 +152,46 @@ Kết quả mong đợi:
 
 ### Xem tài liệu API
 
-Khi chạy với profile `http`, ba dịch vụ cung cấp OpenAPI dạng JSON:
+Chạy service cần thử bằng profile `http` từ thư mục `backend`:
 
 ```bash
-curl -i --fail http://localhost:5092/openapi/v1.json
-curl -i --fail http://localhost:5286/openapi/v1.json
-curl -i --fail http://localhost:5219/openapi/v1.json
+dotnet run --project src/Services/Trip/Trip.Presentation --launch-profile http
+dotnet run --project src/Services/MatchingPricing/MatchingPricing.Presentation --launch-profile http
+dotnet run --project src/Services/Payment/Payment.Presentation --launch-profile http
 ```
 
-Có thể mở các URL này trong trình duyệt. OpenAPI chỉ được bật khi môi trường là `Development`. Hiện chưa có giao diện tại `/swagger`, và gateway chưa cung cấp OpenAPI.
+Mỗi lệnh chạy trong một terminal riêng. Mở Swagger UI trên cổng service tương ứng:
+
+| Service | URL |
+| --- | --- |
+| Trip | <http://localhost:5001/swagger> |
+| MatchingPricing | <http://localhost:5002/swagger> |
+| Payment | <http://localhost:5003/swagger> |
+
+Chọn endpoint, nhấn **Try it out**, nhập request rồi nhấn **Execute** để xem status code và response. Profile `http` cấu hình `launchBrowser=true` và `launchUrl=swagger`; có thể mở URL thủ công nếu công cụ chạy không tự mở trình duyệt.
+
+Ở `POST /matching-pricing/quote` hoặc `/quote`, mục **Examples** có bốn mẫu **Standard**, **Surge**, **Promo**, **Surge + Promo** để chọn nhanh. Ví dụ chọn Standard hoặc dán JSON sau để nhận báo giá 137000 VND với cấu hình minh họa:
+
+```json
+{
+  "distanceKm": 10,
+  "durationMinutes": 20,
+  "pickupZone": "default",
+  "promotionCode": null
+}
+```
+
+Để thử surge, đổi `pickupZone` thành `busy-demo`; để thử ưu đãi, đặt `promotionCode` là `DEMO20`. Trip hiện có endpoint mẫu; các endpoint Payment có truy cập dữ liệu cần PostgreSQL và dữ liệu hợp lệ theo module Payment. Mở Swagger hoặc xem schema không cần gửi request nghiệp vụ tới database.
+
+Tài liệu OpenAPI JSON vẫn truy cập được:
+
+```bash
+curl -i --fail http://localhost:5001/openapi/v1.json
+curl -i --fail http://localhost:5002/openapi/v1.json
+curl -i --fail http://localhost:5003/openapi/v1.json
+```
+
+Swagger UI và OpenAPI chỉ bật trong môi trường `Development`. Dùng URL trực tiếp của từng service; Gateway chưa có giao diện Swagger tổng hợp. Cấu hình dùng OpenAPI sẵn có theo [hướng dẫn chính thức của Microsoft](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents?view=aspnetcore-10.0).
 
 ### Chạy kiểm thử
 
@@ -279,7 +310,7 @@ Kiểm tra terminal của ứng dụng còn mở và đã có dòng `Now listeni
 
 - Với Trip, MatchingPricing và Payment: mở `/weatherforecast`; các dịch vụ chưa có trang tại `/`.
 - Với gateway: mở `/`; chưa có đường dẫn chuyển tiếp như `/trip` hoặc `/payment`.
-- Với tài liệu API: mở `/openapi/v1.json` trên cổng dịch vụ khi môi trường là `Development`; `/swagger` chưa được cấu hình.
+- Với tài liệu API: mở `/swagger` hoặc `/openapi/v1.json` trên cổng 5001/5002/5003 tương ứng; chạy `--launch-profile http` để dùng môi trường `Development`.
 
 ### Lệnh kiểm thử báo sai tham số
 
