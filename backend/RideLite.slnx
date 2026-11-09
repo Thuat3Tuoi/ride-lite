@@ -26,7 +26,9 @@
     <Project Path="src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/MatchingPricing.Application.Tests/MatchingPricing.Application.Tests.csproj" />
     <Project Path="tests/MatchingPricing.Domain.Tests/MatchingPricing.Domain.Tests.csproj" />
+    <Project Path="tests/MatchingPricing.Integration.Tests/MatchingPricing.Integration.Tests.csproj" />
     <Project Path="tests/Payment.Application.Tests/Payment.Application.Tests.csproj" />
     <Project Path="tests/Payment.Domain.Tests/Payment.Domain.Tests.csproj" />
     <Project Path="tests/Payment.Integration.Tests/Payment.Integration.Tests.csproj" />
