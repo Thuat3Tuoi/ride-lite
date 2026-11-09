@@ -1,15 +1,20 @@
+using System.Text.Json.Serialization;
 using Payment.Infrastructure;
 using Payment.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Presentation
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+// Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
