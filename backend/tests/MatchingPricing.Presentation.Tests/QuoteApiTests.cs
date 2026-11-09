@@ -1,11 +1,13 @@
-using System.Net;
 using System.Net.Http.Json;
-using System.Text;
+using System.Net;
 using System.Text.Json;
-using MatchingPricing.Application;
+using System.Text;
+using MatchingPricing.Application.Abstractions.Pricing;
+using MatchingPricing.Application.Configuration;
+using MatchingPricing.Presentation.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -78,13 +80,15 @@ public class QuoteApiTests
     [Fact]
     public async Task UnexpectedFailure_Returns500_WithoutInternalDetails()
     {
-        var service = new Mock<IQuoteService>();
-        service.Setup(value => value.Quote(It.IsAny<QuoteRequest>())).Throws(new InvalidOperationException("private-marker"));
+        var estimator = new Mock<ITripMetricsEstimator>();
+        estimator.Setup(value => value.Estimate(It.IsAny<decimal?>(), It.IsAny<decimal?>()))
+            .Throws(new InvalidOperationException("private-marker"));
         await using var factory = new WebApplicationFactory<global::Program>().WithWebHostBuilder(builder =>
-            builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton(service.Object))));
+            builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton(estimator.Object))));
         using var client = factory.CreateClient();
-        using var response = await client.PostAsJsonAsync("/matching-pricing/quote", new { distanceKm = 10, durationMinutes = 20 }, TestContext.Current.CancellationToken);
+        using var response = await client.PostAsJsonAsync("/matching-pricing/quote", new { distanceKm = 10 }, TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        estimator.Verify(value => value.Estimate(10m, null), Times.Once);
         string body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.DoesNotContain("private-marker", body);
         Assert.DoesNotContain("InvalidOperationException", body);

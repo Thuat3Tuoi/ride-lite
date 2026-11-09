@@ -1,4 +1,4 @@
-namespace MatchingPricing.Domain;
+namespace MatchingPricing.Domain.ValueObjects;
 
 // Bat bien de khong the bo qua validation sau khi khoi tao
 public sealed record FareParameters

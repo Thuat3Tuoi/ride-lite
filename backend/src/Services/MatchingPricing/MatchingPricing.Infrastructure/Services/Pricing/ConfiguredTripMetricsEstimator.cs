@@ -1,7 +1,10 @@
-using MatchingPricing.Application;
+using MatchingPricing.Application.Abstractions.Pricing;
+using MatchingPricing.Application.Configuration;
+using MatchingPricing.Application.Exceptions;
+using MatchingPricing.Application.Models.Pricing;
 using Microsoft.Extensions.Options;
 
-namespace MatchingPricing.Infrastructure;
+namespace MatchingPricing.Infrastructure.Services.Pricing;
 
 // Chi suy ra thoi gian tu quang duong, khong suy doan quang duong tu thoi gian
 public sealed class ConfiguredTripMetricsEstimator(IOptions<PricingOptions> options) : ITripMetricsEstimator

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace MatchingPricing.Application;
+namespace MatchingPricing.Application.Configuration;
 
 // Chan cau hinh sai ngay khi khoi dong thay vi de request dau tien moi phat hien
 public sealed class PricingOptionsValidator : IValidateOptions<PricingOptions>

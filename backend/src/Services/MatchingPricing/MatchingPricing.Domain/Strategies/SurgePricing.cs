@@ -1,4 +1,6 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Strategies;
 
 // Decorator gan he so thay vi nhan ket qua da gom toll va thue
 public sealed class SurgePricing(IPricingStrategy basePricing) : IPricingStrategy

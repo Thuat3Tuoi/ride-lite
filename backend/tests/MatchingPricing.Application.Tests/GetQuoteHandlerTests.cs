@@ -1,13 +1,17 @@
-using MatchingPricing.Application;
-using MatchingPricing.Domain;
-using MatchingPricing.Infrastructure;
+using MatchingPricing.Application.Abstractions.Pricing;
+using MatchingPricing.Application.Configuration;
+using MatchingPricing.Application.Exceptions;
+using MatchingPricing.Application.Features.Quote.Queries.GetQuote;
+using MatchingPricing.Application.Services.Pricing;
+using MatchingPricing.Domain.Factories;
+using MatchingPricing.Infrastructure.Services.Pricing;
 using Microsoft.Extensions.Options;
 using Moq;
 
 namespace MatchingPricing.Application.Tests;
 
 // Mock chi xac nhan viec uoc luong khi du lieu bi thieu
-public class QuoteServiceTests
+public class GetQuoteHandlerTests
 {
     private static PricingOptions Settings() => new()
     {
@@ -17,7 +21,7 @@ public class QuoteServiceTests
         Promotions = new() { ["DEMO20"] = 0.8m }
     };
 
-    private static QuoteService Service(PricingOptions? settings = null, ITripMetricsEstimator? estimator = null)
+    private static GetQuoteHandler Handler(PricingOptions? settings = null, ITripMetricsEstimator? estimator = null)
     {
         var options = Options.Create(settings ?? Settings());
         return new(options, estimator ?? new ConfiguredTripMetricsEstimator(options), new PricingStrategyFactory(), new FareRoundingPolicy());
@@ -27,7 +31,7 @@ public class QuoteServiceTests
     public void CompleteMetrics_DoNotCallEstimator_AndReturn137000()
     {
         var estimator = new Mock<ITripMetricsEstimator>(MockBehavior.Strict);
-        var result = Service(estimator: estimator.Object).Quote(new(10m, 20m));
+        var result = Handler(estimator: estimator.Object).Handle(new(10m, 20m));
         Assert.Equal(137000m, result.TotalFare);
         Assert.Equal(10m, result.DistanceKm);
         Assert.Equal(20m, result.DurationMinutes);
@@ -41,14 +45,14 @@ public class QuoteServiceTests
     [InlineData("busy-demo", "DEMO20", 213600)]
     public void Policies_AreResolvedFromServerConfiguration(string zone, string? code, int total)
     {
-        var result = Service().Quote(new(10m, 20m, zone, code));
+        var result = Handler().Handle(new(10m, 20m, zone, code));
         Assert.Equal(total, result.TotalFare);
     }
 
     [Fact]
     public void MissingDuration_IsEstimatedFromConfiguredSpeed()
     {
-        var result = Service().Quote(new(10m, null));
+        var result = Handler().Handle(new(10m, null));
         Assert.Equal(20m, result.DurationMinutes);
         Assert.Equal(137000m, result.TotalFare);
     }
@@ -59,25 +63,25 @@ public class QuoteServiceTests
     [InlineData(-1, 20)]
     [InlineData(10, -1)]
     public void InvalidOrInsufficientMetrics_AreRejected(int? distance, int? duration)
-        => Assert.Throws<QuoteValidationException>(() => Service().Quote(new(distance, duration)));
+        => Assert.Throws<QuoteValidationException>(() => Handler().Handle(new(distance, duration)));
 
     [Theory]
     [InlineData(0, 20, 37000)]
     [InlineData(10, 0, 107000)]
     [InlineData(0, 0, 7000)]
     public void ZeroMetrics_ArePreserved(int distance, int duration, int total)
-        => Assert.Equal(total, Service().Quote(new(distance, duration)).TotalFare);
+        => Assert.Equal(total, Handler().Handle(new(distance, duration)).TotalFare);
 
     [Fact]
     public void ZeroDistance_WithMissingDuration_EstimatesZero()
-        => Assert.Equal(0m, Service().Quote(new(0m, null)).DurationMinutes);
+        => Assert.Equal(0m, Handler().Handle(new(0m, null)).DurationMinutes);
 
     [Theory]
     [InlineData("unknown", null)]
     [InlineData("default", "INVALID")]
     [InlineData("", null)]
     public void UnknownPolicies_AreRejected(string zone, string? code)
-        => Assert.Throws<QuoteValidationException>(() => Service().Quote(new(10m, 20m, zone, code)));
+        => Assert.Throws<QuoteValidationException>(() => Handler().Handle(new(10m, 20m, zone, code)));
 
     [Theory]
     [InlineData("100.4999", 100)]
@@ -89,7 +93,7 @@ public class QuoteServiceTests
         settings.DistanceRate = decimal.Parse(rate, System.Globalization.CultureInfo.InvariantCulture);
         settings.TimeRate = 0m;
         settings.TollFee = 0m;
-        var result = Service(settings).Quote(new(1m, 0m));
+        var result = Handler(settings).Handle(new(1m, 0m));
         Assert.Equal(expected, result.TotalFare);
         Assert.Equal(settings.DistanceRate, result.DistanceFare);
         Assert.Equal(result.TotalFare, result.Subtotal + result.SurgeAmount + result.TollFee
@@ -98,7 +102,7 @@ public class QuoteServiceTests
 
     [Fact]
     public void ExtremeMetrics_ReturnValidationInsteadOfOverflow()
-        => Assert.Throws<QuoteValidationException>(() => Service().Quote(new(decimal.MaxValue, 0m)));
+        => Assert.Throws<QuoteValidationException>(() => Handler().Handle(new(decimal.MaxValue, 0m)));
 
     [Fact]
     public void InvalidServerConfiguration_IsRejected()

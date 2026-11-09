@@ -1,4 +1,6 @@
-using MatchingPricing.Domain;
+using MatchingPricing.Domain.Factories;
+using MatchingPricing.Domain.Strategies;
+using MatchingPricing.Domain.ValueObjects;
 
 namespace MatchingPricing.Domain.Tests;
 

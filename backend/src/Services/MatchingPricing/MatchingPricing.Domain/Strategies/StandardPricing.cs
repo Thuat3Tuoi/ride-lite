@@ -1,4 +1,6 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Strategies;
 
 // Gia thuong chi giu don gia, toll va thue tu cau hinh server
 public sealed class StandardPricing : IPricingStrategy

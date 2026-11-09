@@ -1,9 +1,6 @@
 using System.Text.Json.Serialization;
-using MatchingPricing.Application;
-using MatchingPricing.Domain;
 using MatchingPricing.Infrastructure;
-using MatchingPricing.Presentation;
-using Microsoft.Extensions.Options;
+using MatchingPricing.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +10,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<QuoteExceptionHandler>();
-builder.Services.AddSingleton<IValidateOptions<PricingOptions>, PricingOptionsValidator>();
-builder.Services.AddOptions<PricingOptions>()
-    .Bind(builder.Configuration.GetSection(PricingOptions.SectionName))
-    .ValidateOnStart();
-builder.Services.AddSingleton<PricingStrategyFactory>();
-builder.Services.AddSingleton<FareRoundingPolicy>();
-builder.Services.AddScoped<ITripMetricsEstimator, ConfiguredTripMetricsEstimator>();
-builder.Services.AddScoped<IQuoteService, QuoteService>();
+
+// Gom dang ky ha tang va query handler theo cung mau voi cac service khac
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

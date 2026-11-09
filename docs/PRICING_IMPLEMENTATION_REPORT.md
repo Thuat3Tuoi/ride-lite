@@ -2,58 +2,54 @@
 
 ## A. Files changed
 
-Chỉ thay đổi Pricing, các project test tương ứng, solution để đăng ký test và tài liệu. Không sửa mã nguồn Trip, Payment, Matching tìm tài xế hoặc Gateway.
+Đã refactor theo mẫu Payment vừa merge từ main: Application chia theo feature/query, Presentation tách Contracts, Infrastructure có DependencyInjection. Không sửa Trip, Payment, Gateway hoặc SharedKernel.
 
-| Thay đổi | File |
-| --- | --- |
-| Chỉnh sửa | [backend/RideLite.slnx](../backend/RideLite.slnx) |
-| Xóa lớp mẫu | `backend/src/Services/MatchingPricing/MatchingPricing.Application/Class1.cs` |
-| Chỉnh sửa | [backend/src/Services/MatchingPricing/MatchingPricing.Application/MatchingPricing.Application.csproj](../backend/src/Services/MatchingPricing/MatchingPricing.Application/MatchingPricing.Application.csproj) |
-| Xóa lớp mẫu | `backend/src/Services/MatchingPricing/MatchingPricing.Domain/Class1.cs` |
-| Xóa lớp mẫu | `backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/Class1.cs` |
-| Chỉnh sửa | [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.http](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.http) |
-| Chỉnh sửa | [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Program.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Program.cs) |
-| Chỉnh sửa | [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/appsettings.json](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/appsettings.json) |
-| Xóa lớp mẫu | `backend/tests/MatchingPricing.Domain.Tests/UnitTest1.cs` |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/FareRoundingPolicy.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/FareRoundingPolicy.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/IQuoteService.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/IQuoteService.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/ITripMetricsEstimator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/ITripMetricsEstimator.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/PricingOptions.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/PricingOptions.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/PricingOptionsValidator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/PricingOptionsValidator.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteRequest.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteRequest.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteResponse.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteResponse.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteService.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteService.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteValidationException.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/QuoteValidationException.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareBreakdown.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareBreakdown.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareFormula.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareFormula.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareParameters.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/FareParameters.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/IPricingStrategy.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/IPricingStrategy.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/PricingContext.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/PricingContext.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/PricingStrategyFactory.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/PricingStrategyFactory.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/PromoPricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/PromoPricing.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/StandardPricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/StandardPricing.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Domain/SurgePricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/SurgePricing.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/ConfiguredTripMetricsEstimator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/ConfiguredTripMetricsEstimator.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/QuoteController.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/QuoteController.cs) |
-| Tạo mới | [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/QuoteExceptionHandler.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/QuoteExceptionHandler.cs) |
-| Tạo mới | [backend/tests/MatchingPricing.Application.Tests/MatchingPricing.Application.Tests.csproj](../backend/tests/MatchingPricing.Application.Tests/MatchingPricing.Application.Tests.csproj) |
-| Tạo mới | [backend/tests/MatchingPricing.Application.Tests/QuoteServiceTests.cs](../backend/tests/MatchingPricing.Application.Tests/QuoteServiceTests.cs) |
-| Tạo mới | [backend/tests/MatchingPricing.Domain.Tests/FareFormulaTests.cs](../backend/tests/MatchingPricing.Domain.Tests/FareFormulaTests.cs) |
-| Tạo mới | [backend/tests/MatchingPricing.Domain.Tests/PricingStrategyTests.cs](../backend/tests/MatchingPricing.Domain.Tests/PricingStrategyTests.cs) |
-| Tạo mới | [backend/tests/MatchingPricing.Presentation.Tests/MatchingPricing.Presentation.Tests.csproj](../backend/tests/MatchingPricing.Presentation.Tests/MatchingPricing.Presentation.Tests.csproj) |
-| Tạo mới | [backend/tests/MatchingPricing.Presentation.Tests/QuoteApiTests.cs](../backend/tests/MatchingPricing.Presentation.Tests/QuoteApiTests.cs) |
-| Tạo mới | [docs/PRICING_INTEGRATION.md](../docs/PRICING_INTEGRATION.md) |
-| Tạo mới | [docs/PRICING_IMPLEMENTATION_REPORT.md](./PRICING_IMPLEMENTATION_REPORT.md) |
+Các file Pricing và test sau refactor:
 
-Các lớp mẫu và test `Assert.True(true)` của Pricing đã được thay thế bằng mô hình và kiểm thử thực tế.
+| File |
+| --- |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Abstractions/Pricing/ITripMetricsEstimator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Abstractions/Pricing/ITripMetricsEstimator.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Configuration/PricingOptions.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Configuration/PricingOptions.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Configuration/PricingOptionsValidator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Configuration/PricingOptionsValidator.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Exceptions/QuoteValidationException.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Exceptions/QuoteValidationException.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteHandler.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteHandler.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteQuery.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteQuery.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteResult.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteResult.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Models/Pricing/TripMetrics.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Models/Pricing/TripMetrics.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Application/Services/Pricing/FareRoundingPolicy.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Services/Pricing/FareRoundingPolicy.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Factories/PricingStrategyFactory.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Factories/PricingStrategyFactory.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Services/FareFormula.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Services/FareFormula.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/IPricingStrategy.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/IPricingStrategy.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/PromoPricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/PromoPricing.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/StandardPricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/StandardPricing.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/SurgePricing.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/Strategies/SurgePricing.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/FareBreakdown.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/FareBreakdown.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/FareParameters.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/FareParameters.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/PricingContext.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Domain/ValueObjects/PricingContext.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/DependencyInjection.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/DependencyInjection.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/Services/Pricing/ConfiguredTripMetricsEstimator.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/Services/Pricing/ConfiguredTripMetricsEstimator.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Contracts/Requests/QuoteRequest.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Contracts/Requests/QuoteRequest.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Contracts/Responses/QuoteResponse.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Contracts/Responses/QuoteResponse.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/QuoteController.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/QuoteController.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/ExceptionHandlers/QuoteExceptionHandler.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/ExceptionHandlers/QuoteExceptionHandler.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Program.cs](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Program.cs) |
+| [backend/tests/MatchingPricing.Application.Tests/GetQuoteHandlerTests.cs](../backend/tests/MatchingPricing.Application.Tests/GetQuoteHandlerTests.cs) |
+| [backend/tests/MatchingPricing.Domain.Tests/FareFormulaTests.cs](../backend/tests/MatchingPricing.Domain.Tests/FareFormulaTests.cs) |
+| [backend/tests/MatchingPricing.Domain.Tests/PricingStrategyTests.cs](../backend/tests/MatchingPricing.Domain.Tests/PricingStrategyTests.cs) |
+| [backend/tests/MatchingPricing.Presentation.Tests/QuoteApiTests.cs](../backend/tests/MatchingPricing.Presentation.Tests/QuoteApiTests.cs) |
+| [backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/MatchingPricing.Infrastructure.csproj](../backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/MatchingPricing.Infrastructure.csproj) |
+| [docs/PRICING_INTEGRATION.md](../docs/PRICING_INTEGRATION.md) |
+| [docs/PRICING_IMPLEMENTATION_REPORT.md](../docs/PRICING_IMPLEMENTATION_REPORT.md) |
+
+Đã bỏ IQuoteService; luồng QuoteService chuyển thành GetQuoteHandler. DTO HTTP chuyển sang Presentation, query/result riêng ở Application. Namespace và test được cập nhật tương ứng.
 
 ## B. Implementation
 
 - **Domain:** FareParameters và PricingContext bất biến, kiểm tra số âm và phạm vi hệ số. FareFormula thuần C#, dùng decimal, trả đủ breakdown, không phụ thuộc ASP.NET, database hoặc configuration
 - **Strategy:** StandardPricing tạo tham số trung tính; SurgePricing và PromoPricing là decorator cấu hình hệ số theo context. Factory ghép bốn tổ hợp. Các decorator gán hệ số thay vì nhân kết quả đã có thuế/toll; công thức chỉ chạy một lần sau khi ghép, tránh điều chỉnh lặp và sai thứ tự
-- **Application:** QuoteService kiểm tra request, tra chính sách trong Options, dùng trực tiếp hai chỉ số đã có hoặc gọi estimator khi thiếu, chọn strategy và hoàn thiện quote. Overflow từ dữ liệu chuyến được đổi thành lỗi validation
+- **Application:** GetQuoteHandler kiểm tra request, tra chính sách trong Options, dùng trực tiếp hai chỉ số đã có hoặc gọi estimator khi thiếu, chọn strategy và hoàn thiện quote. Overflow từ dữ liệu chuyến được đổi thành lỗi validation
 - **Infrastructure:** ConfiguredTripMetricsEstimator chỉ tính thời gian từ quãng đường và vận tốc cấu hình. Không đủ dữ liệu xác định distance thì từ chối
-- **Presentation:** QuoteController dùng chung action cho route công khai và nội bộ. ProblemDetails cho 400/500; lỗi 500 không lộ stack trace. JSON có field ngoài contract bị từ chối. ValidateOnStart ngăn service khởi động với cấu hình sai
+- **Presentation:** QuoteController ánh xạ request → GetQuoteQuery và GetQuoteResult → response, dùng chung action cho route công khai và nội bộ. ProblemDetails cho 400/500; lỗi 500 không lộ stack trace. JSON có field ngoài contract bị từ chối. ValidateOnStart ngăn service khởi động với cấu hình sai
 
 ## C. Pricing formula
 
@@ -74,13 +70,13 @@ Thực thi trên Windows với SDK 10.0.403, phù hợp global.json. Do PATH ch�
 Các lệnh chạy từ thư mục backend:
 
 ```powershell
-& 'C:\Program Files\dotnet\dotnet.exe' build RideLite.slnx --artifacts-path "$env:TEMP\RideLite-Pricing-validation"
-& 'C:\Program Files\dotnet\dotnet.exe' test --solution RideLite.slnx --no-build --artifacts-path "$env:TEMP\RideLite-Pricing-validation"
+& 'C:\Program Files\dotnet\dotnet.exe' build RideLite.slnx --artifacts-path "$env:TEMP\RideLite-Pricing-refactor"
+& 'C:\Program Files\dotnet\dotnet.exe' test --solution RideLite.slnx --artifacts-path "$env:TEMP\RideLite-Pricing-refactor"
 ```
 
-Build cuối: **thành công, 0 warning, 0 error**. Test cuối: **75/75 pass, 0 fail, 0 skip**. Pricing có 73 case: Domain 25, Application 22, Presentation 26. Trip và Payment mỗi module có một test mẫu sẵn có; hai test này không xác minh nghiệp vụ của các module đó.
+Build cuối: **thành công, 0 warning, 0 error**. Test cuối: **159/159 pass, 0 fail, 0 skip**. Pricing có 73 case: Domain 25, Application 22, Presentation 26. Trip có một test mẫu; Payment có 85 test Domain mới từ main. Kết quả này không thay thế kiểm thử tích hợp thực tế của Trip/Payment.
 
-Đã viết test trước logic từng phần và thực thi trạng thái đỏ trước khi triển khai: Domain thiếu các model, Strategy thiếu abstraction, Application thiếu service; API ban đầu trả 404/health chưa đúng. Test ước lượng phát hiện sai số 19.999999999999999999999999998 khi chia trước đổi đơn vị; đã sửa thứ tự phép tính, giữ expected là 20, rồi chạy lại thành công.
+Ở lần triển khai ban đầu, đã viết test trước logic từng phần và thực thi trạng thái đỏ trước khi triển khai: Domain thiếu các model, Strategy thiếu abstraction, Application thiếu service; API ban đầu trả 404/health chưa đúng. Test ước lượng phát hiện sai số 19.999999999999999999999999998 khi chia trước đổi đơn vị; đã sửa thứ tự phép tính, giữ expected là 20, rồi chạy lại thành công.
 
 Bảng nhóm theo test method; các dòng nhiều case ghi số biến thể được runner thực thi:
 
@@ -112,11 +108,11 @@ Bảng nhóm theo test method; các dòng nhiều case ghi số biến thể đ�
 | UnexpectedFailure_Returns500_WithoutInternalDetails | HTTP 500, không có private marker, exception type hoặc stack trace | Đúng | Pass |
 | InvalidConfiguration_PreventsStartup | OptionsValidationException | Đúng | Pass |
 | Trip.Domain.Tests.UnitTest1.Test1 | Test mẫu sẵn có pass | Pass | Pass |
-| Payment.Domain.Tests.UnitTest1.Test1 | Test mẫu sẵn có pass | Pass | Pass |
+| Payment.Domain.Tests (85 case từ main) | Bộ test Domain pass | 85/85 pass | Pass |
 
 ## E. API results
 
-Đã khởi động Kestrel của Pricing ở `http://localhost:15002` và YARP ở `http://localhost:15000` bằng artifacts vừa build; override destination chỉ trong tham số tiến trình sang cổng 15002. Không sửa cấu hình Gateway trong repository hoặc dừng phiên API có sẵn. Cổng mặc định trong launchSettings và file HTTP vẫn là 5002/5000.
+Sau refactor, đã khởi động Kestrel của Pricing ở `http://localhost:15002` và YARP ở `http://localhost:15000` bằng artifacts vừa build; override destination chỉ trong tham số tiến trình sang cổng 15002. Không sửa cấu hình Gateway trong repository hoặc dừng phiên API có sẵn. Cổng mặc định trong launchSettings và file HTTP vẫn là 5002/5000.
 
 Đã đọc và gửi trực tiếp **12/12 request trong file HTTP**, chỉ thay hai biến base URL cho phiên kiểm thử. Tất cả response thành công đều được đối chiếu từng field JSON với phép tính decimal độc lập.
 
@@ -158,12 +154,12 @@ Trip gọi POST `http://localhost:5002/quote` hoặc qua Gateway tại `http://l
 - Toll cố định lấy từ cấu hình, không phải resolver toll theo tuyến
 - Chưa triển khai xác thực, Matching tài xế, MongoDB, lưu quote hoặc tích hợp gọi từ Trip, đúng phạm vi Pricing
 - README và hướng dẫn cài đặt cũ có mô tả/cổng không còn khớp code hiện tại; tài liệu tích hợp này dùng launchSettings và YARP thực tế
-- Chưa có kiểm thử nghiệp vụ thực sự cho Trip/Payment; chỉ xác nhận build toàn solution và test mẫu của hai module vẫn pass
+- Chưa chạy tích hợp database/API của Trip/Payment; build toàn solution, 85 test Payment Domain và test mẫu Trip đều pass
 - Build mặc định có thể bị khóa nếu API đang chạy; đã kiểm chứng đầy đủ bằng artifacts riêng, không sửa global.json
 
 Không còn lỗi build hoặc test Pricing đã phát hiện chưa xử lý.
 
 ## H. Comment review
 
-Đã quét 28 file C# thuộc Pricing và các test: 35 dòng comment, 0 dòng có ký tự ngoài ASCII và 0 comment kết thúc bằng dấu chấm. Đã đọc lại nội dung để giữ tiếng Việt không dấu, giải thích mục đích nghiệp vụ, validation và xử lý lỗi. `git diff --check` không báo lỗi khoảng trắng.
+Đã quét 31 file C# thuộc Pricing và các test: 40 dòng comment, 0 dòng có ký tự ngoài ASCII và 0 comment kết thúc bằng dấu chấm. Đã đọc lại nội dung để giữ tiếng Việt không dấu, giải thích mục đích nghiệp vụ, validation và xử lý lỗi. `git diff --check` không báo lỗi khoảng trắng.
 

@@ -1,4 +1,4 @@
-namespace MatchingPricing.Application;
+namespace MatchingPricing.Presentation.Contracts.Responses;
 
 // RoundingAdjustment giup doi chieu thanh phan chua lam tron voi tong VND nguyen
 public sealed record QuoteResponse(decimal DistanceKm, decimal DurationMinutes,

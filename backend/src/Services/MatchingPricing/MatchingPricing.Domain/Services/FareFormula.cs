@@ -1,4 +1,6 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Services;
 
 // Domain khong doc cau hinh va khong phu thuoc ha tang
 public static class FareFormula

@@ -1,4 +1,4 @@
-namespace MatchingPricing.Domain;
+namespace MatchingPricing.Domain.ValueObjects;
 
 // He so theo chuyen chi duoc tao tu chinh sach da kiem soat o phia server
 public sealed record PricingContext

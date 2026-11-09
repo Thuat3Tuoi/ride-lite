@@ -1,4 +1,4 @@
-namespace MatchingPricing.Application;
+namespace MatchingPricing.Application.Configuration;
 
 // Du lieu gia nam trong section Pricing, gia am mac dinh buoc phai cau hinh don gia
 public sealed class PricingOptions

@@ -1,8 +1,8 @@
-using MatchingPricing.Application;
+using MatchingPricing.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MatchingPricing.Presentation;
+namespace MatchingPricing.Presentation.ExceptionHandlers;
 
 // Chi dua thong diep validation ra ngoai, loi noi bo duoc giu trong log server
 public sealed class QuoteExceptionHandler : IExceptionHandler

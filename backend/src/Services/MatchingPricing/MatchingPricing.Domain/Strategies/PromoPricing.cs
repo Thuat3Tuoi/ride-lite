@@ -1,4 +1,6 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Strategies;
 
 // Cong thuc tap trung quyet dinh vi tri khuyen mai du decorator duoc ghep theo thu tu nao
 public sealed class PromoPricing(IPricingStrategy basePricing) : IPricingStrategy

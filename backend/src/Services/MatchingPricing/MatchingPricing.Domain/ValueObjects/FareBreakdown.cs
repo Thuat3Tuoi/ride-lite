@@ -1,4 +1,4 @@
-namespace MatchingPricing.Domain;
+namespace MatchingPricing.Domain.ValueObjects;
 
 // Giu nguyen do chinh xac de Application chi lam tron tai buoc hoan thien
 public sealed record FareBreakdown(decimal DistanceFare, decimal TimeFare, decimal Subtotal,

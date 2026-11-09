@@ -1,4 +1,4 @@
-namespace MatchingPricing.Application;
+namespace MatchingPricing.Application.Services.Pricing;
 
 // Chi lam tron tong den VND nguyen tai buoc cuoi, moc nua dong duoc lam tron len
 public sealed class FareRoundingPolicy

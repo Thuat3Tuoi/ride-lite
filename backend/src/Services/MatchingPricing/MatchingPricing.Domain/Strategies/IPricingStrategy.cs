@@ -1,4 +1,7 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.Services;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Strategies;
 
 // Ghep chinh sach truoc, chi tinh cong thuc mot lan de tranh cong lap va sai thu tu
 public interface IPricingStrategy

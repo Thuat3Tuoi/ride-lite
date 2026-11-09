@@ -1,4 +1,7 @@
-namespace MatchingPricing.Domain;
+using MatchingPricing.Domain.Strategies;
+using MatchingPricing.Domain.ValueObjects;
+
+namespace MatchingPricing.Domain.Factories;
 
 // Chi kich hoat cac dieu chinh can thiet, khong thay doi StandardPricing
 public sealed class PricingStrategyFactory

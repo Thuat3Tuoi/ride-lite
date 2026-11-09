@@ -2,6 +2,35 @@
 
 Pricing chạy độc lập, không tham chiếu Trip Domain và không cần database. Đơn vị: km, phút, VND. Contract JSON dùng camelCase và số decimal, không dùng chuỗi tiền tệ.
 
+## Cấu trúc module sau khi đồng bộ mẫu từ main
+
+Module dùng cùng cách chia Application theo feature, tách HTTP contracts và đăng ký DI trong Infrastructure như Payment. Báo giá không ghi trạng thái nên được tổ chức thành query; handler chạy đồng bộ vì hiện chưa gọi I/O bên ngoài.
+
+```text
+MatchingPricing.Domain/
+  ValueObjects/                         # FareParameters, PricingContext, FareBreakdown
+  Services/                             # FareFormula
+  Strategies/                           # IPricingStrategy, StandardPricing, SurgePricing, PromoPricing
+  Factories/                            # PricingStrategyFactory
+MatchingPricing.Application/
+  Abstractions/Pricing/                  # ITripMetricsEstimator
+  Configuration/                        # PricingOptions, PricingOptionsValidator
+  Exceptions/                           # QuoteValidationException
+  Features/Quote/Queries/GetQuote/       # GetQuoteQuery, GetQuoteHandler, GetQuoteResult
+  Models/Pricing/                       # TripMetrics
+  Services/Pricing/                     # FareRoundingPolicy
+MatchingPricing.Infrastructure/
+  DependencyInjection.cs                # AddInfrastructure
+  Services/Pricing/                     # ConfiguredTripMetricsEstimator
+MatchingPricing.Presentation/
+  Contracts/Requests/                    # QuoteRequest
+  Contracts/Responses/                   # QuoteResponse
+  Controllers/                          # QuoteController
+  ExceptionHandlers/                    # QuoteExceptionHandler
+```
+
+[QuoteController](../backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/QuoteController.cs) ánh xạ request HTTP sang query và result sang response. [GetQuoteHandler](../backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Quote/Queries/GetQuote/GetQuoteHandler.cs) chứa luồng xử lý trước đây của QuoteService; Application không dùng DTO từ Presentation. [AddInfrastructure](../backend/src/Services/MatchingPricing/MatchingPricing.Infrastructure/DependencyInjection.cs) đăng ký Options, estimator, handler và các thành phần giá. Route, JSON, công thức, rounding và định dạng lỗi HTTP giữ nguyên sau refactor.
+
 ## Endpoint và route
 
 | Cách gọi | Method | URL mặc định |
