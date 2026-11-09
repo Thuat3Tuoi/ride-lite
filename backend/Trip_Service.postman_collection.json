@@ -1,0 +1,318 @@
+{
+  "info": {
+    "_postman_id": "a98342cb-0d3e-4b62-97b7-691a56111f18",
+    "name": "Trip Service API",
+    "description": "API collection for Trip Service including Riders and Trips lifecycle operations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "riderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tripId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00. Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/trip/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["trip", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01. Riders",
+      "item": [
+        {
+          "name": "Create Rider",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.collectionVariables.set('riderId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyen Van A\",\n  \"phoneNumber\": \"0912345678\",\n  \"dateOfBirth\": \"1995-05-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/riders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "riders"]
+            }
+          }
+        },
+        {
+          "name": "Get Rider by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/riders/{{riderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "riders", "{{riderId}}"]
+            }
+          }
+        },
+        {
+          "name": "List Riders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/riders?page=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "riders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Rider Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyen Van A Updated\",\n  \"phoneNumber\": \"0912345678\",\n  \"dateOfBirth\": \"1995-05-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/riders/{{riderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "riders", "{{riderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Trips",
+      "item": [
+        {
+          "name": "Create Trip",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.collectionVariables.set('tripId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"riderId\": {{riderId}},\n  \"pickupAddress\": \"Ben Thanh, District 1, HCMC\",\n  \"pickupLatitude\": 10.7725,\n  \"pickupLongitude\": 106.6980,\n  \"dropoffAddress\": \"Landmark 81, Binh Thanh, HCMC\",\n  \"dropoffLatitude\": 10.7950,\n  \"dropoffLongitude\": 106.7218\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips"]
+            }
+          }
+        },
+        {
+          "name": "Get Trip by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Trips by Rider Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/rider/{{riderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "rider", "{{riderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Trips by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/status/SEARCHING_DRIVER",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "status", "SEARCHING_DRIVER"]
+            }
+          }
+        },
+        {
+          "name": "Accept Trip Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": 888\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/accept-driver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "accept-driver"]
+            }
+          }
+        },
+        {
+          "name": "Get Trips by Driver Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/driver/888",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "driver", "888"]
+            }
+          }
+        },
+        {
+          "name": "Driver Arrived",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/driver-arrived",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "driver-arrived"]
+            }
+          }
+        },
+        {
+          "name": "Start Trip",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "Complete Trip",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Trip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancelledBy\": \"RIDER\",\n  \"reason\": \"Changed mind\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Mark No Driver Found",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/no-driver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "no-driver"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

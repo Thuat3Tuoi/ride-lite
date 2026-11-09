@@ -1,6 +1,120 @@
-@Trip.Presentation_HostAddress = http://localhost:5092
+@baseUrl = http://localhost:5001
 
-GET {{Trip.Presentation_HostAddress}}/weatherforecast/
+### 0. Health Check
+GET {{baseUrl}}/trip/health
 Accept: application/json
 
-###
+### =========================================================================
+### 1. RIDERS
+### =========================================================================
+
+### 1.1 Create Rider
+# @name createRider
+POST {{baseUrl}}/api/riders
+Content-Type: application/json
+
+{
+  "fullName": "Nguyen Van A",
+  "phoneNumber": "0912345678",
+  "dateOfBirth": "1995-05-20"
+}
+
+### Save Rider ID
+@riderId = {{createRider.response.body.id}}
+
+### 1.2 Get Rider by Id
+GET {{baseUrl}}/api/riders/{{riderId}}
+
+### 1.3 List All Riders
+GET {{baseUrl}}/api/riders?page=1&pageSize=20
+
+### 1.4 Update Rider Profile
+PUT {{baseUrl}}/api/riders/{{riderId}}
+Content-Type: application/json
+
+{
+  "fullName": "Nguyen Van A Updated",
+  "phoneNumber": "0912345678",
+  "dateOfBirth": "1995-05-20"
+}
+
+### =========================================================================
+### 2. TRIPS LIFECYCLE
+### =========================================================================
+
+### 2.1 Create / Book Trip
+# @name createTrip
+POST {{baseUrl}}/api/trips
+Content-Type: application/json
+
+{
+  "riderId": {{riderId}},
+  "pickupAddress": "Ben Thanh, District 1, HCMC",
+  "pickupLatitude": 10.7725,
+  "pickupLongitude": 106.6980,
+  "dropoffAddress": "Landmark 81, Binh Thanh, HCMC",
+  "dropoffLatitude": 10.7950,
+  "dropoffLongitude": 106.7218
+}
+
+### Save Trip ID
+@tripId = {{createTrip.response.body.id}}
+
+### 2.2 Get Trip by Id
+GET {{baseUrl}}/api/trips/{{tripId}}
+
+### 2.3 Get Trips by Rider Id
+GET {{baseUrl}}/api/trips/rider/{{riderId}}
+
+### 2.4 Get Trips by Status (SEARCHING_DRIVER)
+GET {{baseUrl}}/api/trips/status/SEARCHING_DRIVER
+
+### 2.5 Driver Accepts Trip
+POST {{baseUrl}}/api/trips/{{tripId}}/accept-driver
+Content-Type: application/json
+
+{
+  "driverId": 888
+}
+
+### 2.6 Get Trips by Driver Id
+GET {{baseUrl}}/api/trips/driver/888
+
+### 2.7 Driver Arrived at Pickup
+POST {{baseUrl}}/api/trips/{{tripId}}/driver-arrived
+
+### 2.8 Start Trip (In Progress)
+POST {{baseUrl}}/api/trips/{{tripId}}/start
+
+### 2.9 Complete Trip
+POST {{baseUrl}}/api/trips/{{tripId}}/complete
+
+### =========================================================================
+### 3. CANCELLATION FLOW
+### =========================================================================
+
+### 3.1 Book another trip for cancellation
+# @name cancelableTrip
+POST {{baseUrl}}/api/trips
+Content-Type: application/json
+
+{
+  "riderId": {{riderId}},
+  "pickupAddress": "Saigon Opera House, District 1, HCMC",
+  "pickupLatitude": 10.7767,
+  "pickupLongitude": 106.7032,
+  "dropoffAddress": "Tan Son Nhat Airport, Tan Binh, HCMC",
+  "dropoffLatitude": 10.8185,
+  "dropoffLongitude": 106.6588
+}
+
+@cancelTripId = {{cancelableTrip.response.body.id}}
+
+### 3.2 Cancel Trip
+POST {{baseUrl}}/api/trips/{{cancelTripId}}/cancel
+Content-Type: application/json
+
+{
+  "cancelledBy": "RIDER",
+  "reason": "Changed schedule"
+}

@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Trip.Application\Trip.Application.csproj" />
     <ProjectReference Include="..\Trip.Infrastructure\Trip.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>
