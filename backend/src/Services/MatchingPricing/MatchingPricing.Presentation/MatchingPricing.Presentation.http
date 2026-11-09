@@ -1,6 +1,72 @@
-@MatchingPricing.Presentation_HostAddress = http://localhost:5286
+@gatewayUrl = http://localhost:5000
+@serviceUrl = http://localhost:5002
 
-GET {{MatchingPricing.Presentation_HostAddress}}/weatherforecast/
+### Health qua Gateway - 200
+GET {{gatewayUrl}}/matching-pricing/health
 Accept: application/json
 
-###
+### Standard quote - 137000 VND voi cau hinh minh hoa
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20}
+
+### Surge quote - 267000 VND, server tra he so tu ma vung
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20,"pickupZone":"busy-demo"}
+
+### Promo quote - 109600 VND, chuong trinh demo duoc server cho phep
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20,"promotionCode":"DEMO20"}
+
+### Surge va promo - 213600 VND
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20,"pickupZone":"busy-demo","promotionCode":"DEMO20"}
+
+### Thieu distance - 400 vi khong co du lieu tuyen duong
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"durationMinutes":20}
+
+### Thieu duration - 200, uoc luong 20 phut voi van toc 30 km/h
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10}
+
+### Input am - 400
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":-1,"durationMinutes":20}
+
+### Vi du 137000 VND qua endpoint noi bo trong PDF
+POST {{serviceUrl}}/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20}
+
+### Thieu ca hai thong so - 400
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{}
+
+### Khong cho phep tu gan he so khuyen mai - 400
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":10,"durationMinutes":20,"promotionFactor":0}
+
+### Gia tri 0 hop le - 7000 VND toll trong cau hinh minh hoa
+POST {{gatewayUrl}}/matching-pricing/quote
+Content-Type: application/json
+
+{"distanceKm":0,"durationMinutes":0}
