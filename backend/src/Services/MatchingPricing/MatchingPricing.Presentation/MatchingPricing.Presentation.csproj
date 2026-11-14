@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MatchingPricing.Application\MatchingPricing.Application.csproj" />
     <ProjectReference Include="..\MatchingPricing.Infrastructure\MatchingPricing.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

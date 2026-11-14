@@ -1,0 +1,277 @@
+{
+  "info": {
+    "_postman_id": "c5d12ef4-754a-4d43-982c-47ea5b9487c1",
+    "name": "Matching-Pricing Service API",
+    "description": "API collection for Matching & Pricing Service including Drivers, Driver Assignments, and Pricing estimation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5002",
+      "type": "string"
+    },
+    {
+      "key": "driverId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "assignmentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00. Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/matching/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["matching", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01. Drivers",
+      "item": [
+        {
+          "name": "Create Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.collectionVariables.set('driverId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Le Van Driver\",\n  \"phoneNumber\": \"0901234567\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"status\": \"offline\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "Get Driver by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Driver Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 10.7725,\n  \"longitude\": 106.6980\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}/location",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}", "location"]
+            }
+          }
+        },
+        {
+          "name": "Update Driver Status (Go Online)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"available\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "{{driverId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Find Nearby Drivers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearby?pickupLatitude=10.7730&pickupLongitude=106.6990&radiusKm=5&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "drivers", "nearby"],
+              "query": [
+                { "key": "pickupLatitude", "value": "10.7730" },
+                { "key": "pickupLongitude", "value": "106.6990" },
+                { "key": "radiusKm", "value": "5" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Assignments",
+      "item": [
+        {
+          "name": "Create Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.id) {",
+                  "    pm.collectionVariables.set('assignmentId', data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tripId\": 1001,\n  \"driverId\": {{driverId}},\n  \"offerDuration\": \"00:01:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"]
+            }
+          }
+        },
+        {
+          "name": "Get Assignments for Trip",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/trip/1001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "trip", "1001"]
+            }
+          }
+        },
+        {
+          "name": "Accept Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": {{driverId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}", "accept"]
+            }
+          }
+        },
+        {
+          "name": "Reject Assignment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": {{driverId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "{{assignmentId}}", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Pricing",
+      "item": [
+        {
+          "name": "Estimate Fare",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLatitude\": 10.7725,\n  \"pickupLongitude\": 106.6980,\n  \"dropoffLatitude\": 10.7950,\n  \"dropoffLongitude\": 106.7218\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pricing/estimate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pricing", "estimate"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
