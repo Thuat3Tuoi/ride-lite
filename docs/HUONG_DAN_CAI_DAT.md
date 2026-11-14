@@ -1,298 +1,323 @@
-# Hướng dẫn cài đặt và cấu hình RideLite
+# Hướng dẫn cài đặt và cấu hình RideLite (Backend)
 
-Tài liệu dành cho thành viên mới cần chạy dự án trên máy cá nhân. Sau khi hoàn thành, bạn có thể khởi động gateway, ba dịch vụ backend, gọi API mẫu và chạy kiểm thử.
+Tài liệu này hướng dẫn chi tiết quy trình chuẩn bị môi trường, cấu hình cơ sở dữ liệu PostgreSQL cục bộ, chạy migration, khởi động các dịch vụ và thực thi kiểm thử cho toàn bộ hệ thống backend **RideLite**.
 
-**Phạm vi hiện tại:** mã nguồn mới có bộ khung backend. Chưa có giao diện frontend, nghiệp vụ đặt xe, thanh toán thực tế hoặc cơ sở dữ liệu được kết nối. API dự báo thời tiết là dữ liệu mẫu để kiểm tra ứng dụng.
+---
 
-Các lệnh dưới đây dùng cú pháp **Bash**, chạy trong Git Bash trên Windows hoặc Bash trên Linux. Không cần cài WSL để dùng Git Bash.
+## 1. Tổng quan kiến trúc Backend
 
-## 1. Chuẩn bị phần mềm
+Hệ thống backend của RideLite được xây dựng theo kiến trúc **Microservices** và tuân theo nguyên lý **Clean Architecture** (Domain, Application, Infrastructure, Presentation), chạy trên nền tảng **.NET 10**.
 
-| Thành phần | Yêu cầu | Mục đích |
-| --- | --- | --- |
-| .NET SDK | `10.0.401`, hoặc SDK mới hơn trong cùng nhánh `10.0` đáp ứng `backend/global.json` | Biên dịch và chạy backend |
-| Git | Cần nếu tải mã nguồn bằng `git clone` | Lấy và cập nhật mã nguồn |
-| Terminal Bash | Git Bash trên Windows; Bash trên Linux | Chạy các lệnh trong tài liệu |
-| Trình duyệt hoặc curl | Có ít nhất một công cụ | Mở API và kiểm tra kết quả |
-| Trình soạn thảo | Tùy chọn | Xem và chỉnh sửa mã nguồn |
+### Cấu trúc dự án:
 
-Tải SDK từ [trang .NET 10 của Microsoft](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Chọn mục **SDK**, vì bộ SDK cung cấp công cụ xây dựng và chạy ứng dụng. Nếu dùng Linux, trang tải có liên kết hướng dẫn cài bằng trình quản lý gói theo hệ điều hành.
-
-`backend/global.json` đặt `version` là `10.0.401` và `rollForward` là `latestFeature`. Vì vậy, chỉ thấy máy có “.NET 10” chưa đủ: SDK cũ hơn như `10.0.100` không đáp ứng cấu hình này. Tham khảo [quy tắc chọn SDK](https://learn.microsoft.com/en-us/dotnet/core/tools/global-json) nếu máy có nhiều phiên bản.
-
-Hiện chưa cần cài PostgreSQL, Docker, Node.js hoặc công cụ frontend. Mã nguồn cũng chưa yêu cầu khóa API hay tài khoản dịch vụ bên ngoài.
-
-## 2. Lấy mã nguồn và mở đúng thư mục
-
-Nhận đường dẫn kho mã nguồn từ nhóm hoặc dùng bản sao dự án đã được chia sẻ. Nếu dùng Git, thay `URL_KHO_MA_NGUON` bằng URL thực tế do nhóm cung cấp:
-
-```bash
-git clone URL_KHO_MA_NGUON ride-lite
-cd ride-lite
+```text
+ride-lite/
+├── backend/
+│   ├── RideLite.slnx                                   # Solution chứa toàn bộ dự án backend
+│   ├── global.json                                     # Định nghĩa phiên bản .NET SDK (10.0.401+)
+│   ├── dotnet-tools.json                               # Định nghĩa công cụ EF Core CLI (dotnet-ef)
+│   ├── src/
+│   │   ├── BuildingBlocks/
+│   │   │   └── SharedKernel/                           # Lớp dùng chung: Xử lý ngoại lệ, mã lỗi tập trung
+│   │   ├── Gateway/
+│   │   │   └── ApiGateway/                             # API Gateway YARP Reverse Proxy (Port 5000)
+│   │   └── Services/
+│   │       ├── Trip/                                   # Dịch vụ Quản lý chuyến đi & Rider (Port 5001)
+│   │       ├── MatchingPricing/                        # Dịch vụ Ghép tài xế & Định giá cước (Port 5002)
+│   │       └── Payment/                                # Dịch vụ Thanh toán, Hoàn tiền, Sổ cái (Port 5003)
+│   ├── tests/                                          # 9 dự án Unit & Integration tests (241 test cases)
+│   ├── Trip_Service.postman_collection.json            # Postman collection test API Trip
+│   ├── Matching_Pricing_Service.postman_collection.json# Postman collection test API Matching & Pricing
+│   └── Payment_Service.postman_collection.json         # Postman collection test API Payment
+├── docs/                                               # Tài liệu kỹ thuật dự án
+└── README.md                                           # Giới thiệu tổng quan
 ```
 
-Nếu đã có thư mục dự án, mở terminal tại thư mục đó, không cần clone lại. Ví dụ với máy có đường dẫn hiện tại:
+### Danh mục dịch vụ và cổng mạng mặc định:
 
-**Windows, Git Bash:**
+| Dịch vụ | Cổng HTTP | Database PostgreSQL | Health Check Endpoint |
+| :--- | :--- | :--- | :--- |
+| **ApiGateway** | `5000` | _Không có_ | `GET http://localhost:5000/` |
+| **Trip Service** | `5001` | `ridelite_trip` | `GET http://localhost:5001/trip/health` |
+| **MatchingPricing Service** | `5002` | `ridelite_matching_pricing` | `GET http://localhost:5002/matching/health` |
+| **Payment Service** | `5003` | `ridelite_payment` | `GET http://localhost:5003/payment/health` |
 
+---
+
+## 2. Yêu cầu hệ thống và công cụ cần chuẩn bị
+
+| Công cụ | Phiên bản yêu cầu | Mục đích |
+| :--- | :--- | :--- |
+| **.NET SDK** | **10.0.401** trở lên (nhánh `.NET 10.0`) | Biên dịch, chạy ứng dụng và test |
+| **PostgreSQL** | **15.x / 16.x** cài đặt trực tiếp trên máy | Lưu trữ cơ sở dữ liệu cho 3 microservices |
+| **Git** | Bản mới nhất | Quản lý mã nguồn |
+| **Terminal Bash** | Git Bash trên Windows; Bash trên Linux/macOS | Thực thi các dòng lệnh |
+| **Postman / cURL** | Bản mới nhất | Kiểm thử các API nghiệp vụ |
+
+> [!IMPORTANT]
+> Tệp `backend/global.json` quy định `rollForward: latestFeature` cho `version: 10.0.401`. Chắc chắn rằng máy bạn đã cài đặt .NET 10 SDK tương thích. Kiểm tra bằng lệnh: `dotnet --version`.
+
+---
+
+## 3. Cài đặt và cấu hình Cơ sở dữ liệu (PostgreSQL)
+
+Hệ thống sử dụng PostgreSQL chạy ở cổng mặc định `5432`. Mỗi microservice sử dụng một cơ sở dữ liệu độc lập.
+
+### Bước 1: Khởi động dịch vụ PostgreSQL trên máy
+Đảm bảo PostgreSQL service đang chạy:
+- **Linux**:
+  ```bash
+  sudo systemctl start postgresql
+  sudo systemctl status postgresql
+  ```
+- **macOS**:
+  ```bash
+  brew services start postgresql
+  ```
+- **Windows**: Mở `services.msc` và đảm bảo service `postgresql-x64-...` đang ở trạng thái `Running`.
+
+### Bước 2: Tạo 3 cơ sở dữ liệu
+Bạn có thể dùng công cụ dòng lệnh `psql` hoặc các công cụ giao diện như **pgAdmin / DBeaver / Navicat**.
+
+#### Cách A: Dùng giao diện psql CLI
+Đăng nhập vào psql bằng user `postgres`:
 ```bash
-cd /d/SGU/Nam4/T2-Chieu-KTPM/ride-lite
+# Trên Linux/macOS
+sudo -u postgres psql
+
+# Hoặc qua kết nối localhost
+psql -U postgres -h localhost
 ```
 
-**Linux:** dùng đường dẫn thực tế trên máy, ví dụ nếu dự án nằm trong `~/projects/ride-lite`:
-
-```bash
-cd ~/projects/ride-lite
+Chạy 3 câu lệnh SQL sau để tạo cơ sở dữ liệu:
+```sql
+CREATE DATABASE ridelite_trip;
+CREATE DATABASE ridelite_matching_pricing;
+CREATE DATABASE ridelite_payment;
+\q
 ```
 
-Kiểm tra rồi chuyển vào backend:
-
+#### Cách B: Chạy lệnh trực tiếp từ terminal
 ```bash
-pwd
-ls
+psql -U postgres -h localhost -c "CREATE DATABASE ridelite_trip;"
+psql -U postgres -h localhost -c "CREATE DATABASE ridelite_matching_pricing;"
+psql -U postgres -h localhost -c "CREATE DATABASE ridelite_payment;"
+```
+
+### Bước 3: Cấu hình tài khoản & mật khẩu kết nối
+Mặc định chuỗi kết nối trong các tệp `appsettings.json` đang để là:
+```
+Host=localhost;Port=5432;Database=<ten_db>;Username=postgres;Password=01052005
+```
+
+> [!TIP]
+> Nếu tài khoản `postgres` trên máy bạn có mật khẩu khác `01052005`:
+> 1. Mở tệp `appsettings.json` tại thư mục của từng dịch vụ:
+>    - `src/Services/Trip/Trip.Presentation/appsettings.json`
+>    - `src/Services/MatchingPricing/MatchingPricing.Presentation/appsettings.json`
+>    - `src/Services/Payment/Payment.Presentation/appsettings.json`
+> 2. Thay đổi giá trị `Password` trong mục `ConnectionStrings:Database` cho phù hợp với máy của bạn.
+> 3. Hoặc đặt mật khẩu `postgres` trên máy thành `01052005`:
+>    ```sql
+>    ALTER USER postgres PASSWORD '01052005';
+>    ```
+
+---
+
+## 4. Các bước cài đặt mã nguồn Backend
+
+Mở terminal Bash (Git Bash trên Windows hoặc Bash trên Linux/macOS) tại thư mục `ride-lite`:
+
+### Bước 1: Di chuyển vào thư mục backend và kiểm tra môi trường
+```bash
 cd backend
-ls RideLite.slnx global.json
-```
-
-**Từ bước 3 trở đi, chạy các lệnh `dotnet` tại thư mục `ride-lite/backend/`, trừ khi có ghi khác.** Mỗi terminal mới cần mở tại thư mục này để đường dẫn dự án và cấu hình SDK được nhận đúng.
-
-## 3. Kiểm tra môi trường và cài các gói phụ thuộc
-
-### Bước 1: Kiểm tra SDK
-
-```bash
-dotnet --list-sdks
 dotnet --version
+dotnet --list-sdks
 ```
 
-Lệnh đầu liệt kê các SDK đã cài. Lệnh sau cho biết SDK được chọn theo `global.json`; với đúng phiên bản gốc, kết quả là `10.0.401`.
-
-Nếu lệnh không chạy được hoặc báo không có SDK phù hợp, xử lý ở [mục 7](#7-các-lỗi-thường-gặp-và-cách-xử-lý) trước khi tiếp tục.
-
-### Bước 2: Tải các gói phụ thuộc
-
+### Bước 2: Khôi phục công cụ cục bộ (Local Tools)
+Dự án quản lý công cụ `dotnet-ef` (Entity Framework Core CLI v10.0.14) qua manifest:
 ```bash
-dotnet restore RideLite.slnx
-```
-
-Lệnh này tải các thư viện mà dự án khai báo. Máy cần truy cập được nguồn gói NuGet. Thông báo `All projects are up-to-date for restore.` cũng là kết quả hợp lệ nếu các gói đã có sẵn.
-
-### Bước 3: Biên dịch toàn bộ backend
-
-```bash
-dotnet build RideLite.slnx --no-restore
-```
-
-Kết quả mong đợi: `Build succeeded.` và `0 Error(s)`. Tham số `--no-restore` dùng các gói đã tải ở bước trước.
-
-Chưa cần chỉnh sửa cấu hình để chạy bản hiện tại. Công cụ `dotnet-ef` là tùy chọn, được hướng dẫn ở [mục 6](#6-cấu-hình-trên-máy-cá-nhân).
-
-## 4. Khởi chạy các ứng dụng
-
-Mở **bốn terminal riêng**, mỗi terminal tại `ride-lite/backend/`, rồi chạy một lệnh tương ứng dưới đây. Giữ các terminal mở trong lúc kiểm tra.
-
-Các ứng dụng hiện chạy độc lập, chưa có yêu cầu gọi qua lại. Có thể chỉ chạy dịch vụ mình đang phụ trách; chạy đủ bốn ứng dụng khi muốn kiểm tra toàn bộ backend.
-
-### Terminal 1: Trip
-
-```bash
-dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http
-```
-
-Địa chỉ: <http://localhost:5092/weatherforecast>.
-
-### Terminal 2: MatchingPricing
-
-```bash
-dotnet run --project src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.csproj --launch-profile http
-```
-
-Địa chỉ: <http://localhost:5286/weatherforecast>.
-
-### Terminal 3: Payment
-
-```bash
-dotnet run --project src/Services/Payment/Payment.Presentation/Payment.Presentation.csproj --launch-profile http
-```
-
-Địa chỉ: <http://localhost:5219/weatherforecast>.
-
-### Terminal 4: ApiGateway
-
-```bash
-dotnet run --project src/Gateway/ApiGateway/ApiGateway.csproj --launch-profile http
-```
-
-Địa chỉ: <http://localhost:5221/>.
-
-Mỗi terminal cần hiển thị `Now listening on: http://localhost:...` và `Hosting environment: Development`. Các lệnh chọn rõ profile `http`, nên không cần thiết lập chứng chỉ HTTPS.
-
-Gateway hiện chỉ trả về `Hello World!` tại `/`. Khi kiểm tra các dịch vụ, dùng trực tiếp cổng của chúng vì gateway chưa chuyển tiếp yêu cầu.
-
-**Dừng ứng dụng:** nhấn `Ctrl+C` trong terminal đang chạy ứng dụng đó. Để dừng cả backend, thực hiện ở cả bốn terminal.
-
-## 5. Kiểm tra dự án đã hoạt động
-
-### Kiểm tra bằng trình duyệt hoặc curl
-
-Mở các địa chỉ ở mục 4 bằng trình duyệt. Nếu dùng curl, mở thêm một terminal Bash và chạy:
-
-```bash
-curl -i --fail http://localhost:5221/
-curl -i --fail http://localhost:5092/weatherforecast
-curl -i --fail http://localhost:5286/weatherforecast
-curl -i --fail http://localhost:5219/weatherforecast
-```
-
-Kết quả mong đợi:
-
-- Cả bốn yêu cầu có trạng thái `200 OK`.
-- Gateway trả về `Hello World!`.
-- Mỗi dịch vụ trả về mảng JSON gồm 5 bản ghi, có các trường `date`, `temperatureC`, `temperatureF`, `summary`. Dữ liệu được tạo ngẫu nhiên, nên nội dung có thể khác nhau giữa các lần gọi.
-
-### Xem tài liệu API
-
-Khi chạy với profile `http`, ba dịch vụ cung cấp OpenAPI dạng JSON:
-
-```bash
-curl -i --fail http://localhost:5092/openapi/v1.json
-curl -i --fail http://localhost:5286/openapi/v1.json
-curl -i --fail http://localhost:5219/openapi/v1.json
-```
-
-Có thể mở các URL này trong trình duyệt. OpenAPI chỉ được bật khi môi trường là `Development`. Hiện chưa có giao diện tại `/swagger`, và gateway chưa cung cấp OpenAPI.
-
-### Chạy kiểm thử
-
-Trong một terminal tại thư mục `backend/`:
-
-```bash
-dotnet test --solution RideLite.slnx
-```
-
-Kết quả hiện tại mong đợi: **3 kiểm thử thành công, 0 thất bại**. Cả ba đều là bài kiểm thử mẫu `Assert.True(true)`, dùng để xác nhận bộ công cụ chạy được; chưa kiểm tra nghiệp vụ.
-
-Để chạy riêng bộ kiểm thử của Trip:
-
-```bash
-dotnet test --project tests/Trip.Domain.Tests/Trip.Domain.Tests.csproj
-```
-
-Dự án chọn `Microsoft.Testing.Platform` trong `global.json`, vì vậy dùng cú pháp `--solution` hoặc `--project` như trên.
-
-## 6. Cấu hình trên máy cá nhân
-
-### Vị trí các tệp cấu hình
-
-Đường dẫn dưới đây tính từ thư mục `backend/`:
-
-| Ứng dụng | Thư mục chứa cấu hình | Cổng HTTP mặc định |
-| --- | --- | --- |
-| ApiGateway | `src/Gateway/ApiGateway/` | `5221` |
-| Trip | `src/Services/Trip/Trip.Presentation/` | `5092` |
-| MatchingPricing | `src/Services/MatchingPricing/MatchingPricing.Presentation/` | `5286` |
-| Payment | `src/Services/Payment/Payment.Presentation/` | `5219` |
-
-Trong mỗi thư mục:
-
-- `Properties/launchSettings.json`: profile chạy trên máy cá nhân. `applicationUrl` đặt địa chỉ và cổng; `ASPNETCORE_ENVIRONMENT` đang là `Development`.
-- `appsettings.json`: cấu hình ghi log và `AllowedHosts`.
-- `appsettings.Development.json`: cấu hình ghi log dùng trong môi trường phát triển.
-
-### Đổi cổng khi bị trùng
-
-Ví dụ chạy Trip ở cổng `5500`, nếu cổng này còn trống:
-
-```bash
-dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http -- --urls http://localhost:5500
-```
-
-Sau đó kiểm tra <http://localhost:5500/weatherforecast>. Cách này chỉ đổi cổng của lần chạy hiện tại, thuận tiện khi máy có ứng dụng khác đang chiếm cổng mặc định.
-
-Nếu nhóm muốn thay đổi cổng mặc định, cập nhật `applicationUrl` trong profile `http` của `Properties/launchSettings.json` tương ứng. Đồng thời cập nhật URL trong tệp `.http` của dịch vụ và các địa chỉ liên quan trong tài liệu.
-
-### Cơ sở dữ liệu và biến môi trường
-
-Ba dự án Infrastructure đã tham chiếu `Npgsql.EntityFrameworkCore.PostgreSQL` phiên bản `10.0.3`. Tuy nhiên, hiện chưa có `DbContext`, migration, chuỗi kết nối hay đăng ký kết nối cơ sở dữ liệu trong ứng dụng. Vì vậy, chưa có bước tạo database hoặc chạy migration để cài đặt.
-
-Dự án cũng chưa có tệp `.env` hoặc đoạn cấu hình đọc tệp `.env`. Các giá trị mặc định trong những tệp nêu trên đã đủ cho các API mẫu.
-
-### Khôi phục công cụ Entity Framework, nếu cần
-
-Nếu cần chuẩn bị công cụ cho công việc phát triển sau này, chạy từ `backend/`:
-
-```bash
-dotnet tool restore --tool-manifest dotnet-tools.json
+dotnet tool restore
 dotnet ef --version
 ```
 
-Manifest hiện khai báo `dotnet-ef` phiên bản **10.0.14**. Dùng đường dẫn manifest cụ thể vì tệp đang nằm ở `backend/dotnet-tools.json`; tham khảo [tài liệu lệnh khôi phục công cụ](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-restore).
-
-Bước này không bắt buộc để chạy API mẫu. Chưa chạy lệnh tạo hoặc cập nhật cơ sở dữ liệu khi dự án chưa có `DbContext`.
-
-## 7. Các lỗi thường gặp và cách xử lý
-
-### Không tìm thấy lệnh dotnet
-
-Cài .NET SDK ở mục 1, đóng rồi mở lại terminal để nhận đường dẫn mới. Sau đó thử lại:
-
-```bash
-dotnet --list-sdks
-```
-
-Nếu vẫn không nhận lệnh, kiểm tra lại quá trình cài đặt và cấu hình `PATH` của hệ điều hành.
-
-### Báo không tìm thấy SDK tương thích
-
-Kiểm tra `dotnet --list-sdks` và `backend/global.json`. Cài SDK `10.0.401` hoặc bản mới hơn trong cùng nhánh `10.0` đáp ứng cấu hình. Không đổi `global.json` chỉ để bỏ qua lỗi trên máy cá nhân vì tệp này quy định môi trường dùng chung của nhóm.
-
-### Lệnh không tìm thấy solution hoặc project
-
-Kiểm tra thư mục hiện tại:
-
-```bash
-pwd
-ls RideLite.slnx
-```
-
-Nếu không thấy tệp, chuyển đến `ride-lite/backend/` rồi chạy lại. Khi dùng Linux, chú ý đúng chữ hoa và chữ thường trong tên thư mục, tệp và đường dẫn.
-
-### Restore thất bại hoặc không truy cập được NuGet
-
-Kiểm tra kết nối Internet, proxy của mạng đang dùng và nguồn gói bị báo lỗi. Sau khi khắc phục kết nối, chạy lại:
-
+### Bước 3: Tải các gói thư viện phụ thuộc (Restore)
 ```bash
 dotnet restore RideLite.slnx
 ```
 
-Giữ lại thông báo lỗi nếu cần nhờ thành viên khác hỗ trợ; thông báo sẽ cho biết nguồn hoặc gói nào không tải được.
+### Bước 4: Áp dụng Migration vào Cơ sở dữ liệu
+Chạy các lệnh sau tại thư mục `backend/` để khởi tạo cấu trúc bảng trong PostgreSQL:
 
-### Cổng đã được sử dụng
+1. **Trip Service Migration**:
+   ```bash
+   dotnet ef database update \
+     --project src/Services/Trip/Trip.Infrastructure/Trip.Infrastructure.csproj \
+     --startup-project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj
+   ```
 
-Nếu gặp `Address already in use` hoặc lỗi không thể mở cổng, kiểm tra có terminal cũ đang chạy cùng ứng dụng hay không. Dừng phiên cũ bằng `Ctrl+C`, hoặc dùng cổng khác theo mục 6.
+2. **Matching & Pricing Service Migration**:
+   ```bash
+   dotnet ef database update \
+     --project src/Services/MatchingPricing/MatchingPricing.Infrastructure/MatchingPricing.Infrastructure.csproj \
+     --startup-project src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.csproj
+   ```
 
-### Trình duyệt báo không thể kết nối
+3. **Payment Service Migration**:
+   ```bash
+   dotnet ef database update \
+     --project src/Services/Payment/Payment.Infrastructure/Payment.Infrastructure.csproj \
+     --startup-project src/Services/Payment/Payment.Presentation/Payment.Presentation.csproj
+   ```
 
-Kiểm tra terminal của ứng dụng còn mở và đã có dòng `Now listening on`. Dùng đúng `http://localhost` cùng cổng được in trong terminal. Nếu ứng dụng vừa dừng do lỗi, đọc thông báo trong terminal trước khi chạy lại.
+*Kết quả mong đợi:* Dòng thông báo `Applying migration '...'` và `Done.` hiển thị cho từng dịch vụ mà không có lỗi.
 
-### Nhận lỗi 404 hoặc không thấy Swagger
+### Bước 5: Biên dịch toàn bộ Solution
+```bash
+dotnet build RideLite.slnx --no-restore
+```
+*Kết quả mong đợi:* `Build succeeded.` với `0 Error(s)`.
 
-- Với Trip, MatchingPricing và Payment: mở `/weatherforecast`; các dịch vụ chưa có trang tại `/`.
-- Với gateway: mở `/`; chưa có đường dẫn chuyển tiếp như `/trip` hoặc `/payment`.
-- Với tài liệu API: mở `/openapi/v1.json` trên cổng dịch vụ khi môi trường là `Development`; `/swagger` chưa được cấu hình.
+---
 
-### Lệnh kiểm thử báo sai tham số
+## 5. Khởi chạy các ứng dụng
 
-Dùng `dotnet test --solution RideLite.slnx` tại `backend/`. Nếu chạy riêng một dự án, dùng `dotnet test --project` kèm đường dẫn như mục 5. Đây là cú pháp của trình chạy kiểm thử được chọn trong `global.json`.
+Để chạy toàn bộ hệ sinh thái, mở **4 cửa sổ terminal riêng biệt**, tất cả đều tại thư mục `ride-lite/backend/`:
 
-## 8. Danh sách xác nhận trước khi bắt đầu làm việc
+### Terminal 1: Khởi chạy Trip Service (Port 5001)
+```bash
+dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http
+```
+- Endpoint: `http://localhost:5001`
+- Kiểm tra trạng thái: `http://localhost:5001/trip/health`
 
-- [ ] SDK được chọn phù hợp với `backend/global.json`.
-- [ ] `dotnet restore RideLite.slnx` hoàn tất.
-- [ ] `dotnet build RideLite.slnx --no-restore` thành công.
-- [ ] Các ứng dụng cần dùng khởi động ở đúng cổng.
-- [ ] API mẫu của từng ứng dụng đang chạy trả về `200 OK`.
-- [ ] OpenAPI của dịch vụ mở được trong môi trường `Development`.
-- [ ] `dotnet test --solution RideLite.slnx` có 3 kiểm thử thành công.
+### Terminal 2: Khởi chạy Matching & Pricing Service (Port 5002)
+```bash
+dotnet run --project src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.csproj --launch-profile http
+```
+- Endpoint: `http://localhost:5002`
+- Kiểm tra trạng thái: `http://localhost:5002/matching/health`
 
-Khi hoàn thành các bước trên, môi trường đã sẵn sàng để phát triển phần backend hiện có. Đọc [README tổng quan](../README.md) để nắm cấu trúc và phạm vi của dự án.
+### Terminal 3: Khởi chạy Payment Service (Port 5003)
+```bash
+dotnet run --project src/Services/Payment/Payment.Presentation/Payment.Presentation.csproj --launch-profile http
+```
+- Endpoint: `http://localhost:5003`
+- Kiểm tra trạng thái: `http://localhost:5003/payment/health`
+
+### Terminal 4: Khởi chạy ApiGateway (Port 5000)
+```bash
+dotnet run --project src/Gateway/ApiGateway/ApiGateway.csproj --launch-profile http
+```
+- Endpoint: `http://localhost:5000`
+- Kiểm tra trạng thái: `http://localhost:5000/`
+
+> [!TIP]
+> Nhấn `Ctrl+C` tại từng cửa sổ terminal bất kỳ lúc nào để dừng dịch vụ đó.
+
+---
+
+## 6. Kiểm tra và xác nhận hệ thống hoạt động
+
+### 6.1. Kiểm tra sức khỏe các dịch vụ (Health Check)
+Mở một terminal khác và dùng lệnh `curl` (hoặc mở trực tiếp trên trình duyệt):
+
+```bash
+# Gateway
+curl -i http://localhost:5000/
+# Kết quả: 200 OK - "Hello World!"
+
+# Trip Service
+curl -i http://localhost:5001/trip/health
+# Kết quả: {"status":"trip-service active"}
+
+# Matching & Pricing Service
+curl -i http://localhost:5002/matching/health
+# Kết quả: {"status":"matchingpricing-service active"}
+
+# Payment Service
+curl -i http://localhost:5003/payment/health
+# Kết quả: {"status":"payment-service active"}
+```
+
+### 6.2. Kiểm tra OpenAPI Specification (JSON)
+Khi chạy ở môi trường `Development`, từng microservice cung cấp tài liệu OpenAPI tại:
+- Trip Service: <http://localhost:5001/openapi/v1.json>
+- Matching & Pricing Service: <http://localhost:5002/openapi/v1.json>
+- Payment Service: <http://localhost:5003/openapi/v1.json>
+
+### 6.3. Kiểm thử API bằng Postman Collection
+Dự án đã đính kèm sẵn 3 bộ sưu tập Postman hoàn chỉnh ngay trong thư mục `backend/`:
+1. `Trip_Service.postman_collection.json`: Tạo Rider, quản lý hồ sơ, tạo Trip, cập nhật tài xế đón, bắt đầu chuyến, hoàn tất chuyến, hủy chuyến.
+2. `Matching_Pricing_Service.postman_collection.json`: Tạo Driver, cập nhật vị trí, tìm tài xế lân cận, gán cuốc (assignment), chấp nhận/từ chối cuốc, ước tính cước phí (pricing estimate).
+3. `Payment_Service.postman_collection.json`: Quản lý Payment Provider, Phương thức thanh toán, Tạo giao dịch thanh toán, Xử lý giao dịch, Hoàn tiền (Refund), Xem sổ cái (Ledger entries).
+
+**Cách sử dụng:**
+1. Mở Postman -> Chọn **Import** -> Kéo thả 3 tệp `.json` trên vào Postman.
+2. Mỗi collection đã cấu hình sẵn biến môi trường `baseUrl`:
+   - Trip: `http://localhost:5001`
+   - Matching & Pricing: `http://localhost:5002`
+   - Payment: `http://localhost:5003`
+3. Tiến hành gọi thử các request trong collection theo thứ tự từ trên xuống dưới.
+
+---
+
+## 7. Chạy kiểm thử tự động (Testing)
+
+Dự án sở hữu **241 bài kiểm thử tự động** bao gồm cả Unit Tests (Domain, Application) và Integration Tests (Controllers, Repositories). Các bài kiểm thử tích hợp sử dụng cơ chế SQLite In-Memory, do đó **không phụ thuộc vào PostgreSQL**.
+
+Từ thư mục `backend/`, chạy:
+
+```bash
+dotnet test RideLite.slnx
+```
+
+Kết quả mong đợi:
+```text
+Test run summary: Passed!
+  total: 241
+  failed: 0
+  succeeded: 241
+  skipped: 0
+```
+
+---
+
+## 8. Cấu hình trên máy cá nhân & Đổi cổng khi bị trùng
+
+### Đổi cổng HTTP khi bị xung đột
+Nếu một trong các cổng `5000`, `5001`, `5002`, `5003` bị chiếm dụng bởi ứng dụng khác trên máy bạn:
+- Tạm thời chỉ định cổng mới khi chạy:
+  ```bash
+  dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http -- --urls http://localhost:5101
+  ```
+- Hoặc chỉnh sửa trực tiếp trong file `Properties/launchSettings.json` của dịch vụ tương ứng.
+- **Lưu ý:** Nếu đổi cổng dịch vụ, cần cập nhật lại địa chỉ đích tương ứng trong `src/Gateway/ApiGateway/appsettings.json` và biến `baseUrl` trong Postman collection.
+
+---
+
+## 9. Các lỗi thường gặp và cách xử lý (Troubleshooting)
+
+| Hiện tượng lỗi | Nguyên nhân | Cách khắc phục |
+| :--- | :--- | :--- |
+| **`Cannot connect to 127.0.0.1:5432` / `Connection refused`** | PostgreSQL service chưa được bật. | Khởi động PostgreSQL service bằng `sudo systemctl start postgresql` (Linux) hoặc qua `Services` (Windows). |
+| **`password authentication failed for user "postgres"`** | Mật khẩu tài khoản PostgreSQL trên máy bạn khác với mật khẩu cấu hình (`01052005`). | Cập nhật lại mật khẩu trong `ConnectionStrings:Database` tại `appsettings.json` của 3 dịch vụ hoặc đổi mật khẩu user `postgres` thành `01052005`. |
+| **`database "ridelite_trip" does not exist`** | Chưa tạo database trước khi chạy migration hoặc chạy app. | Chạy lệnh `CREATE DATABASE ridelite_trip;` (tương tự với `ridelite_matching_pricing` và `ridelite_payment`) qua psql hoặc pgAdmin. |
+| **`Cannot find SDK 10.0.401`** | Máy chưa cài .NET 10 SDK hoặc phiên bản cũ hơn 10.0.401. | Tải và cài đặt .NET SDK 10 mới nhất từ trang chủ Microsoft (.NET 10). |
+| **`Address already in use`** | Cổng mạng (`5000` - `5003`) đang bị chiếm bởi tiến trình khác. | Tìm và tắt tiến trình đang chạy (dùng `lsof -i :<port>` hoặc `netstat`), hoặc dùng tham số `--urls` để đổi cổng. |
+| **`dotnet ef: command not found`** | Chưa khôi phục công cụ CLI cục bộ. | Chạy lệnh `dotnet tool restore` tại thư mục `backend/`. |
+
+---
+
+## 10. Checklist kiểm tra nhanh
+
+- [ ] Đã cài đặt .NET 10 SDK (`dotnet --version` hiển thị 10.0.401+).
+- [ ] Dịch vụ PostgreSQL đang chạy ở cổng 5432.
+- [ ] Đã tạo đủ 3 database (`ridelite_trip`, `ridelite_matching_pricing`, `ridelite_payment`).
+- [ ] Đã chạy `dotnet tool restore` thành công.
+- [ ] Đã chạy `dotnet ef database update` cho cả 3 microservice.
+- [ ] `dotnet build RideLite.slnx` thành công (`0 Error(s)`).
+- [ ] `dotnet test RideLite.slnx` vượt qua 241/241 bài kiểm thử.
+- [ ] Khởi động thành công 4 terminal (Gateway: 5000, Trip: 5001, MatchingPricing: 5002, Payment: 5003).
+- [ ] Gọi thử `health` endpoint của cả 4 ứng dụng trả về HTTP 200 OK.
