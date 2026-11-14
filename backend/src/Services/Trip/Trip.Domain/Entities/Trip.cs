@@ -1,9 +1,12 @@
 using Trip.Domain.Enumerators;
+using Trip.Domain.States;
 
 namespace Trip.Domain.Entities;
 
 public sealed class Trip
 {
+    private TripState? _state;
+
     public long Id { get; private set; }
     public long? DriverId { get; private set; }
     public long RiderId { get; private set; }
@@ -24,6 +27,8 @@ public sealed class Trip
     public CancelledBy? CancelledBy { get; private set; }
     public string? CancelReason { get; private set; }
     public TripStatus Status { get; private set; }
+
+    public TripState State => _state ??= TripState.FromStatus(Status);
 
     public Rider? Rider { get; private set; }
 
@@ -63,6 +68,7 @@ public sealed class Trip
             DropoffLongitude = dropoffLongitude,
             Cost = cost,
             Status = TripStatus.SEARCHING_DRIVER,
+            _state = TripState.SearchingDriver,
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -70,66 +76,70 @@ public sealed class Trip
 
     public void AcceptDriver(long driverId)
     {
-        if (Status != TripStatus.SEARCHING_DRIVER)
-            throw new InvalidOperationException($"Cannot accept driver when trip status is '{Status}'.");
-
-        if (driverId <= 0)
-            throw new ArgumentException("Driver ID must be a positive value.");
-
-        DriverId = driverId;
-        Status = TripStatus.DRIVER_ACCEPTED;
-        AcceptedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
+        State.AcceptDriver(this, driverId);
     }
 
     public void DriverArrive()
     {
-        if (Status != TripStatus.DRIVER_ACCEPTED)
-            throw new InvalidOperationException($"Cannot mark driver arrived when trip status is '{Status}'.");
-
-        Status = TripStatus.DRIVER_ARRIVED;
-        DriverArrivedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
+        State.DriverArrive(this);
     }
 
     public void StartTrip()
     {
-        if (Status != TripStatus.DRIVER_ARRIVED)
-            throw new InvalidOperationException($"Cannot start trip when trip status is '{Status}'.");
-
-        Status = TripStatus.IN_PROGRESS;
-        StartedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
+        State.StartTrip(this);
     }
 
     public void CompleteTrip()
     {
-        if (Status != TripStatus.IN_PROGRESS)
-            throw new InvalidOperationException($"Cannot complete trip when trip status is '{Status}'.");
-
-        Status = TripStatus.COMPLETED;
-        CompletedAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
+        State.CompleteTrip(this);
     }
 
     public void Cancel(CancelledBy cancelledBy, string? reason = null)
     {
-        if (Status is TripStatus.COMPLETED or TripStatus.CANCELLED or TripStatus.NO_DRIVER_FOUND)
-            throw new InvalidOperationException($"Cannot cancel a trip when status is '{Status}'.");
-
-        Status = TripStatus.CANCELLED;
-        CancelledBy = cancelledBy;
-        CancelReason = reason?.Trim();
-        CancelledAt = DateTimeOffset.UtcNow;
-        UpdatedAt = DateTimeOffset.UtcNow;
+        State.Cancel(this, cancelledBy, reason);
     }
 
     public void MarkNoDriverFound()
     {
-        if (Status != TripStatus.SEARCHING_DRIVER)
-            throw new InvalidOperationException($"Cannot mark no driver found when trip status is '{Status}'.");
+        State.MarkNoDriverFound(this);
+    }
 
-        Status = TripStatus.NO_DRIVER_FOUND;
+    internal void SetDriver(long driverId)
+    {
+        DriverId = driverId;
+    }
+
+    internal void SetAcceptedAt(DateTimeOffset acceptedAt)
+    {
+        AcceptedAt = acceptedAt;
+    }
+
+    internal void SetDriverArrivedAt(DateTimeOffset driverArrivedAt)
+    {
+        DriverArrivedAt = driverArrivedAt;
+    }
+
+    internal void SetStartedAt(DateTimeOffset startedAt)
+    {
+        StartedAt = startedAt;
+    }
+
+    internal void SetCompletedAt(DateTimeOffset completedAt)
+    {
+        CompletedAt = completedAt;
+    }
+
+    internal void SetCancellation(CancelledBy cancelledBy, string? reason, DateTimeOffset cancelledAt)
+    {
+        CancelledBy = cancelledBy;
+        CancelReason = reason?.Trim();
+        CancelledAt = cancelledAt;
+    }
+
+    internal void TransitionTo(TripState newState)
+    {
+        _state = newState;
+        Status = newState.Status;
         UpdatedAt = DateTimeOffset.UtcNow;
     }
 
@@ -151,4 +161,3 @@ public sealed class Trip
             throw new ArgumentException($"{type} longitude must be between -180 and 180.");
     }
 }
-

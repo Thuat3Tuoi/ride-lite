@@ -87,6 +87,9 @@ public sealed class TripConfiguration : IEntityTypeConfiguration<TripEntity>
             .HasMaxLength(32)
             .IsRequired();
 
+        // Ignore domain State object from EF mapping
+        builder.Ignore(t => t.State);
+
         // Indexes
         builder.HasIndex(t => t.RiderId);
         builder.HasIndex(t => t.DriverId);
