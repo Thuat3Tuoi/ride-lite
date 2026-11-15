@@ -6,4 +6,3 @@ public sealed record UpdateRiderProfileCommand(
     string PhoneNumber,
     DateOnly? DateOfBirth = null
 );
-

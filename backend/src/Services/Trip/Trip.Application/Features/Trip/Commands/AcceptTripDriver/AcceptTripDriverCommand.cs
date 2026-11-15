@@ -4,4 +4,3 @@ public sealed record AcceptTripDriverCommand(
     long TripId,
     long DriverId
 );
-

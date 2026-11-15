@@ -10,4 +10,3 @@ public sealed record CreateTripCommand(
     decimal DropoffLongitude,
     decimal? ClientFare = null
 );
-

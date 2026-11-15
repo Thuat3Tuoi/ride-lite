@@ -21,50 +21,13 @@ namespace Trip.Presentation.Controllers;
 [Route("api/trips")]
 public sealed class TripsController : ControllerBase
 {
-    private readonly CreateTripHandler _createTripHandler;
-    private readonly AcceptTripDriverHandler _acceptTripDriverHandler;
-    private readonly DriverArriveHandler _driverArriveHandler;
-    private readonly StartTripHandler _startTripHandler;
-    private readonly CompleteTripHandler _completeTripHandler;
-    private readonly CancelTripHandler _cancelTripHandler;
-    private readonly MarkNoDriverFoundHandler _markNoDriverFoundHandler;
-    private readonly GetTripByIdHandler _getTripByIdHandler;
-    private readonly GetTripsByRiderIdHandler _getTripsByRiderIdHandler;
-    private readonly GetTripsByDriverIdHandler _getTripsByDriverIdHandler;
-    private readonly GetTripsByStatusHandler _getTripsByStatusHandler;
-
-    public TripsController(
-        CreateTripHandler createTripHandler,
-        AcceptTripDriverHandler acceptTripDriverHandler,
-        DriverArriveHandler driverArriveHandler,
-        StartTripHandler startTripHandler,
-        CompleteTripHandler completeTripHandler,
-        CancelTripHandler cancelTripHandler,
-        MarkNoDriverFoundHandler markNoDriverFoundHandler,
-        GetTripByIdHandler getTripByIdHandler,
-        GetTripsByRiderIdHandler getTripsByRiderIdHandler,
-        GetTripsByDriverIdHandler getTripsByDriverIdHandler,
-        GetTripsByStatusHandler getTripsByStatusHandler)
-    {
-        _createTripHandler = createTripHandler;
-        _acceptTripDriverHandler = acceptTripDriverHandler;
-        _driverArriveHandler = driverArriveHandler;
-        _startTripHandler = startTripHandler;
-        _completeTripHandler = completeTripHandler;
-        _cancelTripHandler = cancelTripHandler;
-        _markNoDriverFoundHandler = markNoDriverFoundHandler;
-        _getTripByIdHandler = getTripByIdHandler;
-        _getTripsByRiderIdHandler = getTripsByRiderIdHandler;
-        _getTripsByDriverIdHandler = getTripsByDriverIdHandler;
-        _getTripsByStatusHandler = getTripsByStatusHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(TripResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TripResponse>> Create(
         [FromBody] CreateTripRequest request,
+        [FromServices] CreateTripHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateTripCommand(
@@ -78,7 +41,7 @@ public sealed class TripsController : ControllerBase
             request.ClientFare
         );
 
-        var result = await _createTripHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new TripResponse(
             result.Id,
@@ -104,10 +67,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TripResponse>> GetById(
         long id,
+        [FromServices] GetTripByIdHandler handler,
         CancellationToken cancellationToken)
     {
         var query = new GetTripByIdQuery(id);
-        var result = await _getTripByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         return Ok(MapToResponse(result));
     }
@@ -116,10 +80,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<TripResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TripResponse>>> GetByRiderId(
         long riderId,
+        [FromServices] GetTripsByRiderIdHandler handler,
         CancellationToken cancellationToken)
     {
         var query = new GetTripsByRiderIdQuery(riderId);
-        var result = await _getTripsByRiderIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items.Select(MapToResponse).ToList();
         return Ok(response);
@@ -129,10 +94,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<TripResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TripResponse>>> GetByDriverId(
         long driverId,
+        [FromServices] GetTripsByDriverIdHandler handler,
         CancellationToken cancellationToken)
     {
         var query = new GetTripsByDriverIdQuery(driverId);
-        var result = await _getTripsByDriverIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items.Select(MapToResponse).ToList();
         return Ok(response);
@@ -142,10 +108,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<TripResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TripResponse>>> GetByStatus(
         TripStatus status,
+        [FromServices] GetTripsByStatusHandler handler,
         CancellationToken cancellationToken)
     {
         var query = new GetTripsByStatusQuery(status);
-        var result = await _getTripsByStatusHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items.Select(MapToResponse).ToList();
         return Ok(response);
@@ -158,10 +125,11 @@ public sealed class TripsController : ControllerBase
     public async Task<IActionResult> AcceptDriver(
         long id,
         [FromBody] AcceptTripDriverRequest request,
+        [FromServices] AcceptTripDriverHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new AcceptTripDriverCommand(id, request.DriverId);
-        var result = await _acceptTripDriverHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -172,10 +140,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DriverArrived(
         long id,
+        [FromServices] DriverArriveHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new DriverArriveCommand(id);
-        var result = await _driverArriveHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -186,10 +155,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> StartTrip(
         long id,
+        [FromServices] StartTripHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new StartTripCommand(id);
-        var result = await _startTripHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -200,10 +170,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompleteTrip(
         long id,
+        [FromServices] CompleteTripHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new CompleteTripCommand(id);
-        var result = await _completeTripHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -216,10 +187,11 @@ public sealed class TripsController : ControllerBase
     public async Task<IActionResult> CancelTrip(
         long id,
         [FromBody] CancelTripRequest request,
+        [FromServices] CancelTripHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new CancelTripCommand(id, request.CancelledBy, request.Reason);
-        var result = await _cancelTripHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -230,10 +202,11 @@ public sealed class TripsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MarkNoDriver(
         long id,
+        [FromServices] MarkNoDriverFoundHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new MarkNoDriverFoundCommand(id);
-        var result = await _markNoDriverFoundHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -264,4 +237,3 @@ public sealed class TripsController : ControllerBase
         );
     }
 }
-

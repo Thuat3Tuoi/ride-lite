@@ -5,4 +5,3 @@ public sealed record CreateRiderCommand(
     string PhoneNumber,
     DateOnly? DateOfBirth = null
 );
-

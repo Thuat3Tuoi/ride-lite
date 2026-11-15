@@ -13,29 +13,13 @@ namespace Trip.Presentation.Controllers;
 [Route("api/riders")]
 public sealed class RidersController : ControllerBase
 {
-    private readonly CreateRiderHandler _createRiderHandler;
-    private readonly UpdateRiderProfileHandler _updateRiderProfileHandler;
-    private readonly GetRiderByIdHandler _getRiderByIdHandler;
-    private readonly GetRidersHandler _getRidersHandler;
-
-    public RidersController(
-        CreateRiderHandler createRiderHandler,
-        UpdateRiderProfileHandler updateRiderProfileHandler,
-        GetRiderByIdHandler getRiderByIdHandler,
-        GetRidersHandler getRidersHandler)
-    {
-        _createRiderHandler = createRiderHandler;
-        _updateRiderProfileHandler = updateRiderProfileHandler;
-        _getRiderByIdHandler = getRiderByIdHandler;
-        _getRidersHandler = getRidersHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(RiderResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<RiderResponse>> Create(
         [FromBody] CreateRiderRequest request,
+        [FromServices] CreateRiderHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateRiderCommand(
@@ -44,7 +28,7 @@ public sealed class RidersController : ControllerBase
             request.DateOfBirth
         );
 
-        var result = await _createRiderHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new RiderResponse(
             result.Id,
@@ -63,10 +47,11 @@ public sealed class RidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RiderResponse>> GetById(
         long id,
+        [FromServices] GetRiderByIdHandler handler,
         CancellationToken cancellationToken)
     {
         var query = new GetRiderByIdQuery(id);
-        var result = await _getRiderByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new RiderResponse(
             result.Id,
@@ -83,12 +68,13 @@ public sealed class RidersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<RiderResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RiderResponse>>> GetAll(
+        [FromServices] GetRidersHandler handler,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         var query = new GetRidersQuery(page, pageSize);
-        var result = await _getRidersHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items.Select(r => new RiderResponse(
             r.Id,
@@ -110,6 +96,7 @@ public sealed class RidersController : ControllerBase
     public async Task<ActionResult<RiderResponse>> UpdateProfile(
         long id,
         [FromBody] UpdateRiderProfileRequest request,
+        [FromServices] UpdateRiderProfileHandler handler,
         CancellationToken cancellationToken)
     {
         var command = new UpdateRiderProfileCommand(
@@ -119,7 +106,7 @@ public sealed class RidersController : ControllerBase
             request.DateOfBirth
         );
 
-        var result = await _updateRiderProfileHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new RiderResponse(
             result.Id,
@@ -133,4 +120,3 @@ public sealed class RidersController : ControllerBase
         return Ok(response);
     }
 }
-

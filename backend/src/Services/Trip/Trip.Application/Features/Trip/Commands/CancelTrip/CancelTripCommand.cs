@@ -7,4 +7,3 @@ public sealed record CancelTripCommand(
     CancelledBy CancelledBy,
     string? Reason = null
 );
-
