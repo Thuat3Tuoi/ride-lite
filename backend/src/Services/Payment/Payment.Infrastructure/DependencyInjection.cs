@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Payment.Application;
 using Payment.Application.Abstractions.Data;
 using Payment.Application.Abstractions.Email;
 using Payment.Application.Features.LedgerEntry.Commands.CreatePaymentLedgerEntry;
@@ -72,6 +73,9 @@ public static class DependencyInjection
 
         // Email implementation
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+        // Application (FluentValidation & Decorated Handlers)
+        services.AddApplication();
 
         // Command & Query Handlers
         services.AddPaymentHandlers();

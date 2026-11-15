@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Application.Features.Refund.Commands.CompleteRefund;
 using Payment.Application.Features.Refund.Commands.CreateRefund;
 using Payment.Application.Features.Refund.Commands.ProcessRefund;
@@ -13,32 +15,13 @@ namespace Payment.Presentation.Controllers;
 [Route("api/refunds")]
 public sealed class RefundsController : ControllerBase
 {
-    private readonly CreateRefundHandler _createRefundHandler;
-    private readonly ProcessRefundHandler _processRefundHandler;
-    private readonly CompleteRefundHandler _completeRefundHandler;
-    private readonly GetRefundByIdHandler _getRefundByIdHandler;
-    private readonly GetRefundsByPaymentIdHandler _getRefundsByPaymentIdHandler;
-
-    public RefundsController(
-        CreateRefundHandler createRefundHandler,
-        ProcessRefundHandler processRefundHandler,
-        CompleteRefundHandler completeRefundHandler,
-        GetRefundByIdHandler getRefundByIdHandler,
-        GetRefundsByPaymentIdHandler getRefundsByPaymentIdHandler)
-    {
-        _createRefundHandler = createRefundHandler;
-        _processRefundHandler = processRefundHandler;
-        _completeRefundHandler = completeRefundHandler;
-        _getRefundByIdHandler = getRefundByIdHandler;
-        _getRefundsByPaymentIdHandler = getRefundsByPaymentIdHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(CreateRefundResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CreateRefundResponse>> Create(
         [FromBody] CreateRefundRequest request,
+        [FromServices] ICommandHandler<CreateRefundCommand, CreateRefundResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateRefundCommand(
@@ -48,7 +31,7 @@ public sealed class RefundsController : ControllerBase
             request.Reason
         );
 
-        var result = await _createRefundHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CreateRefundResponse(
             result.Id,
@@ -68,10 +51,11 @@ public sealed class RefundsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RefundResponse>> GetById(
         [FromRoute] long id,
+        [FromServices] IQueryHandler<GetRefundByIdQuery, GetRefundByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetRefundByIdQuery(id);
-        var result = await _getRefundByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new RefundResponse(
             result.Id,
@@ -93,10 +77,11 @@ public sealed class RefundsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<RefundResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RefundResponse>>> GetByPaymentId(
         [FromRoute] long paymentId,
+        [FromServices] IQueryHandler<GetRefundsByPaymentIdQuery, GetRefundsByPaymentIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetRefundsByPaymentIdQuery(paymentId);
-        var result = await _getRefundsByPaymentIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Refunds
             .Select(r => new RefundResponse(
@@ -121,10 +106,11 @@ public sealed class RefundsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ProcessRefundResponse>> Process(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<ProcessRefundCommand, ProcessRefundResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new ProcessRefundCommand(id);
-        var result = await _processRefundHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new ProcessRefundResponse(
             result.RefundId,
@@ -143,10 +129,11 @@ public sealed class RefundsController : ControllerBase
     public async Task<ActionResult<CompleteRefundResponse>> Complete(
         [FromRoute] long id,
         [FromBody] CompleteRefundRequest request,
+        [FromServices] ICommandHandler<CompleteRefundCommand, CompleteRefundResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CompleteRefundCommand(id, request.ProviderRefundId);
-        var result = await _completeRefundHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CompleteRefundResponse(
             result.RefundId,
@@ -159,4 +146,3 @@ public sealed class RefundsController : ControllerBase
         return Ok(response);
     }
 }
-

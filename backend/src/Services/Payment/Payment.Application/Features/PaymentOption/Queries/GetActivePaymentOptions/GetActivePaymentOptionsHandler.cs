@@ -1,8 +1,9 @@
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 
 namespace Payment.Application.Features.PaymentOption.Queries.GetActivePaymentOptions;
 
-public sealed class GetActivePaymentOptionsHandler
+public sealed class GetActivePaymentOptionsHandler : IQueryHandler<GetActivePaymentOptionsQuery, GetActivePaymentOptionsResult>
 {
     private readonly IPaymentOptionRepository _paymentOptionRepository;
 

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Application.Features.PaymentProvider.Commands.ActivatePaymentProvider;
 using Payment.Application.Features.PaymentProvider.Commands.CreatePaymentProvider;
 using Payment.Application.Features.PaymentProvider.Commands.DeactivatePaymentProvider;
@@ -13,32 +15,13 @@ namespace Payment.Presentation.Controllers;
 [Route("api/payment-providers")]
 public sealed class PaymentProvidersController : ControllerBase
 {
-    private readonly CreatePaymentProviderHandler _createPaymentProviderHandler;
-    private readonly ActivatePaymentProviderHandler _activatePaymentProviderHandler;
-    private readonly DeactivatePaymentProviderHandler _deactivatePaymentProviderHandler;
-    private readonly GetPaymentProviderByIdHandler _getPaymentProviderByIdHandler;
-    private readonly GetActivePaymentProvidersHandler _getActivePaymentProvidersHandler;
-
-    public PaymentProvidersController(
-        CreatePaymentProviderHandler createPaymentProviderHandler,
-        ActivatePaymentProviderHandler activatePaymentProviderHandler,
-        DeactivatePaymentProviderHandler deactivatePaymentProviderHandler,
-        GetPaymentProviderByIdHandler getPaymentProviderByIdHandler,
-        GetActivePaymentProvidersHandler getActivePaymentProvidersHandler)
-    {
-        _createPaymentProviderHandler = createPaymentProviderHandler;
-        _activatePaymentProviderHandler = activatePaymentProviderHandler;
-        _deactivatePaymentProviderHandler = deactivatePaymentProviderHandler;
-        _getPaymentProviderByIdHandler = getPaymentProviderByIdHandler;
-        _getActivePaymentProvidersHandler = getActivePaymentProvidersHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(CreatePaymentProviderResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CreatePaymentProviderResponse>> Create(
         [FromBody] CreatePaymentProviderRequest request,
+        [FromServices] ICommandHandler<CreatePaymentProviderCommand, CreatePaymentProviderResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreatePaymentProviderCommand(
@@ -48,7 +31,7 @@ public sealed class PaymentProvidersController : ControllerBase
             request.Active
         );
 
-        var result = await _createPaymentProviderHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CreatePaymentProviderResponse(
             result.Id,
@@ -66,10 +49,11 @@ public sealed class PaymentProvidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentProviderResponse>> GetById(
         [FromRoute] long id,
+        [FromServices] IQueryHandler<GetPaymentProviderByIdQuery, GetPaymentProviderByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetPaymentProviderByIdQuery(id);
-        var result = await _getPaymentProviderByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new PaymentProviderResponse(
             result.Id,
@@ -85,10 +69,11 @@ public sealed class PaymentProvidersController : ControllerBase
     [HttpGet("active")]
     [ProducesResponseType(typeof(IReadOnlyList<PaymentProviderResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PaymentProviderResponse>>> GetActive(
+        [FromServices] IQueryHandler<GetActivePaymentProvidersQuery, GetActivePaymentProvidersResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetActivePaymentProvidersQuery();
-        var result = await _getActivePaymentProvidersHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items
             .Select(p => new PaymentProviderResponse(
@@ -107,10 +92,11 @@ public sealed class PaymentProvidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentProviderStatusResponse>> Activate(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<ActivatePaymentProviderCommand, ActivatePaymentProviderResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new ActivatePaymentProviderCommand(id);
-        var result = await _activatePaymentProviderHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new PaymentProviderStatusResponse(
             result.Id,
@@ -125,10 +111,11 @@ public sealed class PaymentProvidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentProviderStatusResponse>> Deactivate(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<DeactivatePaymentProviderCommand, DeactivatePaymentProviderResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new DeactivatePaymentProviderCommand(id);
-        var result = await _deactivatePaymentProviderHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new PaymentProviderStatusResponse(
             result.Id,
@@ -138,4 +125,3 @@ public sealed class PaymentProvidersController : ControllerBase
         return Ok(response);
     }
 }
-

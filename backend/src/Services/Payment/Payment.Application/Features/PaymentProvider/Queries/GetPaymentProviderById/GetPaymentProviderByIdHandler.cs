@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Queries.GetPaymentProviderById;
 
-public sealed class GetPaymentProviderByIdHandler
+public sealed class GetPaymentProviderByIdHandler : IQueryHandler<GetPaymentProviderByIdQuery, GetPaymentProviderByIdResult>
 {
     private readonly IPaymentProviderRepository _paymentProviderRepository;
 

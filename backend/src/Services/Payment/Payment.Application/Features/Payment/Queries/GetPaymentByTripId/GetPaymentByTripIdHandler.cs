@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Payment.Queries.GetPaymentByTripId;
 
-public sealed class GetPaymentByTripIdHandler
+public sealed class GetPaymentByTripIdHandler : IQueryHandler<GetPaymentByTripIdQuery, GetPaymentByTripIdResult>
 {
     private readonly IPaymentRepository _paymentRepository;
 

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Application.Features.Payment.Commands.CancelPayment;
 using Payment.Application.Features.Payment.Commands.CompletePayment;
 using Payment.Application.Features.Payment.Commands.CreatePayment;
@@ -14,35 +16,13 @@ namespace Payment.Presentation.Controllers;
 [Route("api/payments")]
 public sealed class PaymentsController : ControllerBase
 {
-    private readonly CreatePaymentHandler _createPaymentHandler;
-    private readonly ProcessPaymentHandler _processPaymentHandler;
-    private readonly CompletePaymentHandler _completePaymentHandler;
-    private readonly CancelPaymentHandler _cancelPaymentHandler;
-    private readonly GetPaymentByIdHandler _getPaymentByIdHandler;
-    private readonly GetPaymentByTripIdHandler _getPaymentByTripIdHandler;
-
-    public PaymentsController(
-        CreatePaymentHandler createPaymentHandler,
-        ProcessPaymentHandler processPaymentHandler,
-        CompletePaymentHandler completePaymentHandler,
-        CancelPaymentHandler cancelPaymentHandler,
-        GetPaymentByIdHandler getPaymentByIdHandler,
-        GetPaymentByTripIdHandler getPaymentByTripIdHandler)
-    {
-        _createPaymentHandler = createPaymentHandler;
-        _processPaymentHandler = processPaymentHandler;
-        _completePaymentHandler = completePaymentHandler;
-        _cancelPaymentHandler = cancelPaymentHandler;
-        _getPaymentByIdHandler = getPaymentByIdHandler;
-        _getPaymentByTripIdHandler = getPaymentByTripIdHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(CreatePaymentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CreatePaymentResponse>> Create(
         [FromBody] CreatePaymentRequest request,
+        [FromServices] ICommandHandler<CreatePaymentCommand, CreatePaymentResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreatePaymentCommand(
@@ -53,7 +33,7 @@ public sealed class PaymentsController : ControllerBase
             request.ProviderId
         );
 
-        var result = await _createPaymentHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CreatePaymentResponse(
             result.Id,
@@ -73,10 +53,11 @@ public sealed class PaymentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentResponse>> GetById(
         [FromRoute] long id,
+        [FromServices] IQueryHandler<GetPaymentByIdQuery, GetPaymentByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetPaymentByIdQuery(id);
-        var result = await _getPaymentByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new PaymentResponse(
             result.Id,
@@ -101,10 +82,11 @@ public sealed class PaymentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentResponse>> GetByTripId(
         [FromRoute] long tripId,
+        [FromServices] IQueryHandler<GetPaymentByTripIdQuery, GetPaymentByTripIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetPaymentByTripIdQuery(tripId);
-        var result = await _getPaymentByTripIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new PaymentResponse(
             result.Id,
@@ -131,10 +113,11 @@ public sealed class PaymentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ProcessPaymentResponse>> Process(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<ProcessPaymentCommand, ProcessPaymentResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new ProcessPaymentCommand(id);
-        var result = await _processPaymentHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new ProcessPaymentResponse(
             result.PaymentId,
@@ -153,6 +136,7 @@ public sealed class PaymentsController : ControllerBase
     public async Task<ActionResult<CompletePaymentResponse>> Complete(
         [FromRoute] long id,
         [FromBody] CompletePaymentRequest request,
+        [FromServices] ICommandHandler<CompletePaymentCommand, CompletePaymentResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CompletePaymentCommand(
@@ -162,7 +146,7 @@ public sealed class PaymentsController : ControllerBase
             request.ResolvedProviderId
         );
 
-        var result = await _completePaymentHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CompletePaymentResponse(
             result.PaymentId,
@@ -183,10 +167,11 @@ public sealed class PaymentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CancelPaymentResponse>> Cancel(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<CancelPaymentCommand, CancelPaymentResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CancelPaymentCommand(id);
-        var result = await _cancelPaymentHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CancelPaymentResponse(
             result.PaymentId,
@@ -197,4 +182,3 @@ public sealed class PaymentsController : ControllerBase
         return Ok(response);
     }
 }
-

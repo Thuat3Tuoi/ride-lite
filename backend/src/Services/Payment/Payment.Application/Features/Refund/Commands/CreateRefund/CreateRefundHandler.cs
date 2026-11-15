@@ -1,11 +1,12 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Entities;
 using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Refund.Commands.CreateRefund;
 
-public sealed class CreateRefundHandler
+public sealed class CreateRefundHandler : ICommandHandler<CreateRefundCommand, CreateRefundResult>
 {
     private readonly IRefundRepository _refundRepository;
 

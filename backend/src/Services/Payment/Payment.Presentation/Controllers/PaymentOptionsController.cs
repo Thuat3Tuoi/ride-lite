@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Application.Features.PaymentOption.Commands.ActivatePaymentOption;
 using Payment.Application.Features.PaymentOption.Commands.CreatePaymentOption;
 using Payment.Application.Features.PaymentOption.Commands.DeactivatePaymentOption;
@@ -14,35 +16,13 @@ namespace Payment.Presentation.Controllers;
 [Route("api/payment-options")]
 public sealed class PaymentOptionsController : ControllerBase
 {
-    private readonly CreatePaymentOptionHandler _createPaymentOptionHandler;
-    private readonly ActivatePaymentOptionHandler _activatePaymentOptionHandler;
-    private readonly DeactivatePaymentOptionHandler _deactivatePaymentOptionHandler;
-    private readonly GetPaymentOptionByIdHandler _getPaymentOptionByIdHandler;
-    private readonly GetActivePaymentOptionsHandler _getActivePaymentOptionsHandler;
-    private readonly GetPaymentOptionsByMethodIdHandler _getPaymentOptionsByMethodIdHandler;
-
-    public PaymentOptionsController(
-        CreatePaymentOptionHandler createPaymentOptionHandler,
-        ActivatePaymentOptionHandler activatePaymentOptionHandler,
-        DeactivatePaymentOptionHandler deactivatePaymentOptionHandler,
-        GetPaymentOptionByIdHandler getPaymentOptionByIdHandler,
-        GetActivePaymentOptionsHandler getActivePaymentOptionsHandler,
-        GetPaymentOptionsByMethodIdHandler getPaymentOptionsByMethodIdHandler)
-    {
-        _createPaymentOptionHandler = createPaymentOptionHandler;
-        _activatePaymentOptionHandler = activatePaymentOptionHandler;
-        _deactivatePaymentOptionHandler = deactivatePaymentOptionHandler;
-        _getPaymentOptionByIdHandler = getPaymentOptionByIdHandler;
-        _getActivePaymentOptionsHandler = getActivePaymentOptionsHandler;
-        _getPaymentOptionsByMethodIdHandler = getPaymentOptionsByMethodIdHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(CreatePaymentOptionResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<CreatePaymentOptionResponse>> Create(
         [FromBody] CreatePaymentOptionRequest request,
+        [FromServices] ICommandHandler<CreatePaymentOptionCommand, CreatePaymentOptionResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreatePaymentOptionCommand(
@@ -53,7 +33,7 @@ public sealed class PaymentOptionsController : ControllerBase
             request.Active
         );
 
-        var result = await _createPaymentOptionHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new CreatePaymentOptionResponse(
             result.Id,
@@ -72,10 +52,11 @@ public sealed class PaymentOptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentOptionResponse>> GetById(
         [FromRoute] long id,
+        [FromServices] IQueryHandler<GetPaymentOptionByIdQuery, GetPaymentOptionByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetPaymentOptionByIdQuery(id);
-        var result = await _getPaymentOptionByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new PaymentOptionResponse(
             result.Id,
@@ -92,10 +73,11 @@ public sealed class PaymentOptionsController : ControllerBase
     [HttpGet("active")]
     [ProducesResponseType(typeof(IReadOnlyList<PaymentOptionResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PaymentOptionResponse>>> GetActive(
+        [FromServices] IQueryHandler<GetActivePaymentOptionsQuery, GetActivePaymentOptionsResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetActivePaymentOptionsQuery();
-        var result = await _getActivePaymentOptionsHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items
             .Select(o => new PaymentOptionResponse(
@@ -114,10 +96,11 @@ public sealed class PaymentOptionsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<PaymentOptionResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PaymentOptionResponse>>> GetByMethodId(
         [FromRoute] long methodId,
+        [FromServices] IQueryHandler<GetPaymentOptionsByMethodIdQuery, GetPaymentOptionsByMethodIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetPaymentOptionsByMethodIdQuery(methodId);
-        var result = await _getPaymentOptionsByMethodIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Items
             .Select(o => new PaymentOptionResponse(
@@ -137,10 +120,11 @@ public sealed class PaymentOptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentOptionStatusResponse>> Activate(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<ActivatePaymentOptionCommand, ActivatePaymentOptionResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new ActivatePaymentOptionCommand(id);
-        var result = await _activatePaymentOptionHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new PaymentOptionStatusResponse(
             result.Id,
@@ -155,10 +139,11 @@ public sealed class PaymentOptionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentOptionStatusResponse>> Deactivate(
         [FromRoute] long id,
+        [FromServices] ICommandHandler<DeactivatePaymentOptionCommand, DeactivatePaymentOptionResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new DeactivatePaymentOptionCommand(id);
-        var result = await _deactivatePaymentOptionHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new PaymentOptionStatusResponse(
             result.Id,
@@ -168,4 +153,3 @@ public sealed class PaymentOptionsController : ControllerBase
         return Ok(response);
     }
 }
-

@@ -1,5 +1,6 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Features.Payment.Commands.ProcessPayment;
+using Payment.Application.Tests.Fakes;
 using Payment.Domain.Enumerators;
 using Payment.Domain.Errors;
 using Xunit;

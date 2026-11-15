@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.Payment.Commands.CompletePayment;
 
-public sealed class CompletePaymentHandler
+public sealed class CompletePaymentHandler : ICommandHandler<CompletePaymentCommand, CompletePaymentResult>
 {
     private readonly IPaymentRepository _paymentRepository;
 

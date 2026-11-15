@@ -93,5 +93,66 @@ public static class PaymentErrors
         "Ledger entry reference already exists.",
         ErrorType.Conflict
     );
+
+    // Validation (2000, 2005-2006, 2012-2013, 2022-2023, 2032, 2042, 2052)
+    public static readonly ErrorCode InvalidParameters = new(
+        2000,
+        "Invalid payment parameters.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidTripId = new(
+        2005,
+        "Trip ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidPaymentId = new(
+        2006,
+        "Payment ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidRefundId = new(
+        2012,
+        "Refund ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidReason = new(
+        2013,
+        "Refund reason cannot be empty.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidMethodId = new(
+        2022,
+        "Payment method ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidName = new(
+        2023,
+        "Name cannot be empty.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidOptionId = new(
+        2032,
+        "Payment option ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidProviderId = new(
+        2042,
+        "Payment provider ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidLedgerEntryId = new(
+        2052,
+        "Ledger entry ID must be a positive value.",
+        ErrorType.Validation
+    );
 }
 

@@ -1,73 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
-using Payment.Application.Abstractions.Data;
-using Payment.Application.Abstractions.Email;
 using Payment.Application.Features.Payment.Commands.CreatePayment;
+using Payment.Application.Tests.Fakes;
 using Payment.Domain.Errors;
 using Xunit;
 using PaymentEntity = Payment.Domain.Entities.Payment;
 
 namespace Payment.Application.Tests.Features.Payment;
-
-public sealed class FakePaymentRepository : IPaymentRepository
-{
-    private long _nextId = 1;
-    public List<PaymentEntity> Payments { get; } = [];
-    public bool Saved { get; private set; }
-
-    public Task<PaymentEntity?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(Payments.FirstOrDefault(x => x.Id == id));
-    }
-
-    public Task<PaymentEntity?> GetByTripIdAsync(long tripId, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(Payments.FirstOrDefault(x => x.TripId == tripId));
-    }
-
-    public Task<PaymentEntity?> GetByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(Payments.FirstOrDefault(x => x.IdempotencyKey == idempotencyKey));
-    }
-
-    public Task<bool> ExistsByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(Payments.Any(x => x.IdempotencyKey == idempotencyKey));
-    }
-
-    public Task AddAsync(PaymentEntity payment, CancellationToken cancellationToken = default)
-    {
-        if (payment.Id == 0)
-        {
-            typeof(PaymentEntity).GetProperty("Id")?.SetValue(payment, _nextId++);
-        }
-
-        Payments.Add(payment);
-        return Task.CompletedTask;
-    }
-
-    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        Saved = true;
-        return Task.CompletedTask;
-    }
-}
-
-public sealed class FakeEmailSender : IEmailSender
-{
-    public bool ShouldSucceed { get; set; } = true;
-    public bool WasCalled { get; private set; }
-    public List<string> Recipients { get; } = [];
-
-    public Task<bool> TrySendWelcomeEmailAsync(
-        string email,
-        string name,
-        CancellationToken cancellationToken = default)
-    {
-        WasCalled = true;
-        Recipients.Add(email);
-        return Task.FromResult(ShouldSucceed);
-    }
-}
 
 public sealed class CreatePaymentHandlerTests
 {

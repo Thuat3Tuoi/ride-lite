@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Errors;
 
 namespace Payment.Application.Features.PaymentProvider.Commands.ActivatePaymentProvider;
 
-public sealed class ActivatePaymentProviderHandler
+public sealed class ActivatePaymentProviderHandler : ICommandHandler<ActivatePaymentProviderCommand, ActivatePaymentProviderResult>
 {
     private readonly IPaymentProviderRepository _paymentProviderRepository;
 

@@ -1,9 +1,10 @@
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 using Payment.Domain.Entities;
 
 namespace Payment.Application.Features.LedgerEntry.Commands.CreateRefundLedgerEntry;
 
-public sealed class CreateRefundLedgerEntryHandler
+public sealed class CreateRefundLedgerEntryHandler : ICommandHandler<CreateRefundLedgerEntryCommand, CreateRefundLedgerEntryResult>
 {
     private readonly ILedgerEntryRepository _ledgerEntryRepository;
 

@@ -1,8 +1,9 @@
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 
 namespace Payment.Application.Features.LedgerEntry.Queries.GetLedgerEntriesByRefundId;
 
-public sealed class GetLedgerEntriesByRefundIdHandler
+public sealed class GetLedgerEntriesByRefundIdHandler : IQueryHandler<GetLedgerEntriesByRefundIdQuery, GetLedgerEntriesByRefundIdResult>
 {
     private readonly ILedgerEntryRepository _ledgerEntryRepository;
 

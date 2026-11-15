@@ -1,8 +1,9 @@
 using Payment.Application.Abstractions.Data;
+using Payment.Application.Abstractions.Messaging;
 
 namespace Payment.Application.Features.Refund.Queries.GetRefundsByPaymentId;
 
-public sealed class GetRefundsByPaymentIdHandler
+public sealed class GetRefundsByPaymentIdHandler : IQueryHandler<GetRefundsByPaymentIdQuery, GetRefundsByPaymentIdResult>
 {
     private readonly IRefundRepository _refundRepository;
 
