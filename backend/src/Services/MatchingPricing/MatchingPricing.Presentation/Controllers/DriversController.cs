@@ -1,3 +1,4 @@
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Application.Features.Driver.Commands.CreateDriver;
 using MatchingPricing.Application.Features.Driver.Commands.UpdateDriverLocation;
 using MatchingPricing.Application.Features.Driver.Commands.UpdateDriverStatus;
@@ -14,32 +15,13 @@ namespace MatchingPricing.Presentation.Controllers;
 [Route("api/drivers")]
 public sealed class DriversController : ControllerBase
 {
-    private readonly CreateDriverHandler _createDriverHandler;
-    private readonly UpdateDriverLocationHandler _updateLocationHandler;
-    private readonly UpdateDriverStatusHandler _updateStatusHandler;
-    private readonly GetDriverByIdHandler _getDriverByIdHandler;
-    private readonly FindNearbyDriversHandler _findNearbyDriversHandler;
-
-    public DriversController(
-        CreateDriverHandler createDriverHandler,
-        UpdateDriverLocationHandler updateLocationHandler,
-        UpdateDriverStatusHandler updateStatusHandler,
-        GetDriverByIdHandler getDriverByIdHandler,
-        FindNearbyDriversHandler findNearbyDriversHandler)
-    {
-        _createDriverHandler = createDriverHandler;
-        _updateLocationHandler = updateLocationHandler;
-        _updateStatusHandler = updateStatusHandler;
-        _getDriverByIdHandler = getDriverByIdHandler;
-        _findNearbyDriversHandler = findNearbyDriversHandler;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(DriverResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DriverResponse>> Create(
         [FromBody] CreateDriverRequest request,
+        [FromServices] ICommandHandler<CreateDriverCommand, CreateDriverResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateDriverCommand(
@@ -49,7 +31,7 @@ public sealed class DriversController : ControllerBase
             request.Status
         );
 
-        var result = await _createDriverHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         var response = new DriverResponse(
             result.Id,
@@ -73,10 +55,11 @@ public sealed class DriversController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DriverResponse>> GetById(
         long id,
+        [FromServices] IQueryHandler<GetDriverByIdQuery, GetDriverByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetDriverByIdQuery(id);
-        var result = await _getDriverByIdHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new DriverResponse(
             result.Id,
@@ -102,10 +85,11 @@ public sealed class DriversController : ControllerBase
     public async Task<IActionResult> UpdateLocation(
         long id,
         [FromBody] UpdateDriverLocationRequest request,
+        [FromServices] ICommandHandler<UpdateDriverLocationCommand, UpdateDriverLocationResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new UpdateDriverLocationCommand(id, request.Latitude, request.Longitude);
-        var result = await _updateLocationHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -117,10 +101,11 @@ public sealed class DriversController : ControllerBase
     public async Task<IActionResult> UpdateStatus(
         long id,
         [FromBody] UpdateDriverStatusRequest request,
+        [FromServices] ICommandHandler<UpdateDriverStatusCommand, UpdateDriverStatusResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new UpdateDriverStatusCommand(id, request.Status);
-        var result = await _updateStatusHandler.HandleAsync(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         return Ok(result);
     }
@@ -130,12 +115,13 @@ public sealed class DriversController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<NearbyDriverResponse>>> FindNearby(
         [FromQuery] decimal pickupLatitude,
         [FromQuery] decimal pickupLongitude,
+        [FromServices] IQueryHandler<FindNearbyDriversQuery, FindNearbyDriversResult> handler,
         [FromQuery] double radiusKm = 10.0,
         [FromQuery] int limit = 10,
         CancellationToken cancellationToken = default)
     {
         var query = new FindNearbyDriversQuery(pickupLatitude, pickupLongitude, radiusKm, limit);
-        var result = await _findNearbyDriversHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = result.Drivers.Select(d => new NearbyDriverResponse(
             new DriverResponse(
@@ -157,4 +143,3 @@ public sealed class DriversController : ControllerBase
         return Ok(response);
     }
 }
-

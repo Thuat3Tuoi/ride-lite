@@ -14,8 +14,3 @@ public sealed record DriverResponse(
     DateTimeOffset UpdatedAt
 );
 
-public sealed record NearbyDriverResponse(
-    DriverResponse Driver,
-    double DistanceKm
-);
-

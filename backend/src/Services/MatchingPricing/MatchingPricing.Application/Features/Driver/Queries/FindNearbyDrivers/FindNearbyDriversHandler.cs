@@ -1,9 +1,10 @@
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Application.Features.Driver.Queries.GetDriverById;
 
 namespace MatchingPricing.Application.Features.Driver.Queries.FindNearbyDrivers;
 
-public sealed class FindNearbyDriversHandler
+public sealed class FindNearbyDriversHandler : IQueryHandler<FindNearbyDriversQuery, FindNearbyDriversResult>
 {
     private readonly IDriverRepository _driverRepository;
 

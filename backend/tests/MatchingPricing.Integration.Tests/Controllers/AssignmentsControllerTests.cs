@@ -126,5 +126,18 @@ public sealed class AssignmentsControllerTests
         var response = await client.GetAsync("/matching/health");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
+
+    [Fact]
+    public async Task CreateAssignment_WithInvalidData_Returns400BadRequest()
+    {
+        using var factory = new MatchingPricingApiFactory();
+        using var client = factory.CreateClient();
+        await factory.InitializeDatabaseAsync();
+
+        var response = await client.PostAsJsonAsync("/api/assignments",
+            new CreateAssignmentRequest(0, 0));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }
 

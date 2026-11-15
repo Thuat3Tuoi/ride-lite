@@ -1,3 +1,4 @@
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Application.Features.Pricing.Queries.EstimatePrice;
 using MatchingPricing.Presentation.Contracts.Requests;
 using MatchingPricing.Presentation.Contracts.Responses;
@@ -10,17 +11,11 @@ namespace MatchingPricing.Presentation.Controllers;
 [Route("api/pricing")]
 public sealed class PricingController : ControllerBase
 {
-    private readonly EstimatePriceHandler _estimatePriceHandler;
-
-    public PricingController(EstimatePriceHandler estimatePriceHandler)
-    {
-        _estimatePriceHandler = estimatePriceHandler;
-    }
-
     [HttpPost("estimate")]
     [ProducesResponseType(typeof(EstimatePriceResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<EstimatePriceResponse>> Estimate(
         [FromBody] EstimatePriceRequest request,
+        [FromServices] IQueryHandler<EstimatePriceQuery, EstimatePriceResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new EstimatePriceQuery(
@@ -30,7 +25,7 @@ public sealed class PricingController : ControllerBase
             request.DropoffLongitude
         );
 
-        var result = await _estimatePriceHandler.HandleAsync(query, cancellationToken);
+        var result = await handler.HandleAsync(query, cancellationToken);
 
         var response = new EstimatePriceResponse(
             result.Fare,
@@ -41,4 +36,3 @@ public sealed class PricingController : ControllerBase
         return Ok(response);
     }
 }
-

@@ -9,12 +9,3 @@ public sealed record CreateDriverRequest(
     DriverStatus Status = DriverStatus.offline
 );
 
-public sealed record UpdateDriverLocationRequest(
-    decimal Latitude,
-    decimal Longitude
-);
-
-public sealed record UpdateDriverStatusRequest(
-    DriverStatus Status
-);
-

@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Domain.Errors;
 
 namespace MatchingPricing.Application.Features.Assignment.Commands.RejectAssignment;
 
-public sealed class RejectAssignmentHandler
+public sealed class RejectAssignmentHandler : ICommandHandler<RejectAssignmentCommand, RejectAssignmentResult>
 {
     private readonly IDriverAssignmentRepository _assignmentRepository;
 

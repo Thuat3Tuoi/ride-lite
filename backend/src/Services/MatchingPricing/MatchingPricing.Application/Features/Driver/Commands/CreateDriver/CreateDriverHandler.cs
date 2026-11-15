@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Domain.Errors;
 
 namespace MatchingPricing.Application.Features.Driver.Commands.CreateDriver;
 
-public sealed class CreateDriverHandler
+public sealed class CreateDriverHandler : ICommandHandler<CreateDriverCommand, CreateDriverResult>
 {
     private readonly IDriverRepository _driverRepository;
 

@@ -1,8 +1,9 @@
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Application.Abstractions.Pricing;
 
 namespace MatchingPricing.Application.Features.Pricing.Queries.EstimatePrice;
 
-public sealed class EstimatePriceHandler
+public sealed class EstimatePriceHandler : IQueryHandler<EstimatePriceQuery, EstimatePriceResult>
 {
     private readonly IPricingCalculator _pricingCalculator;
 

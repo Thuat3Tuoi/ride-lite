@@ -1,3 +1,4 @@
+using MatchingPricing.Application;
 using MatchingPricing.Application.Abstractions.Data;
 using MatchingPricing.Application.Abstractions.Pricing;
 using MatchingPricing.Application.Features.Assignment.Commands.AcceptAssignment;
@@ -40,6 +41,9 @@ public static class DependencyInjection
 
         // Pricing Calculator
         services.AddScoped<IPricingCalculator, PricingCalculator>();
+
+        // Application (FluentValidation & Decorated Handlers)
+        services.AddApplication();
 
         // Handlers
         services.AddMatchingPricingHandlers();

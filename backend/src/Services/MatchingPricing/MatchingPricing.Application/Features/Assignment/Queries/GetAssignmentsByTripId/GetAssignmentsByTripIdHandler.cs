@@ -1,8 +1,9 @@
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 
 namespace MatchingPricing.Application.Features.Assignment.Queries.GetAssignmentsByTripId;
 
-public sealed class GetAssignmentsByTripIdHandler
+public sealed class GetAssignmentsByTripIdHandler : IQueryHandler<GetAssignmentsByTripIdQuery, GetAssignmentsByTripIdResult>
 {
     private readonly IDriverAssignmentRepository _assignmentRepository;
 

@@ -6,10 +6,3 @@ public sealed record EstimatePriceQuery(
     decimal DropoffLatitude,
     decimal DropoffLongitude
 );
-
-public sealed record EstimatePriceResult(
-    decimal Fare,
-    double DistanceKm,
-    string Currency = "VND"
-);
-

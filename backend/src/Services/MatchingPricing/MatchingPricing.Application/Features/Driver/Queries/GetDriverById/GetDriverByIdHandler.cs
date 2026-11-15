@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Domain.Errors;
 
 namespace MatchingPricing.Application.Features.Driver.Queries.GetDriverById;
 
-public sealed class GetDriverByIdHandler
+public sealed class GetDriverByIdHandler : IQueryHandler<GetDriverByIdQuery, GetDriverByIdResult>
 {
     private readonly IDriverRepository _driverRepository;
 

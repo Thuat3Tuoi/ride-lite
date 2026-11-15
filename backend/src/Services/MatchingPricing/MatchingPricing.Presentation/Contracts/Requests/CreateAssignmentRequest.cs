@@ -6,11 +6,3 @@ public sealed record CreateAssignmentRequest(
     TimeSpan? OfferDuration = null
 );
 
-public sealed record AcceptAssignmentRequest(
-    long DriverId
-);
-
-public sealed record RejectAssignmentRequest(
-    long DriverId
-);
-

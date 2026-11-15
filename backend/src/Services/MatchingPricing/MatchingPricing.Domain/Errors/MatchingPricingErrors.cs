@@ -65,5 +65,48 @@ public static class MatchingPricingErrors
         "Driver does not match the assignment offer.",
         ErrorType.Forbidden
     );
+
+    // Validation (3000, 3006 - 3010, 3025)
+    public static readonly ErrorCode InvalidParameters = new(
+        3000,
+        "Invalid parameters.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidFullName = new(
+        3006,
+        "Full name cannot be empty.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidDateOfBirth = new(
+        3007,
+        "Date of birth cannot be in the future.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidDriverId = new(
+        3008,
+        "Driver ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidTripId = new(
+        3009,
+        "Trip ID must be a positive value.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidRadius = new(
+        3010,
+        "Search radius must be greater than zero.",
+        ErrorType.Validation
+    );
+
+    public static readonly ErrorCode InvalidAssignmentId = new(
+        3025,
+        "Assignment ID must be a positive value.",
+        ErrorType.Validation
+    );
 }
 

@@ -82,5 +82,30 @@ public sealed class DriversControllerTests
         Assert.Single(nearbyList);
         Assert.Equal(driver.Id, nearbyList[0].Driver.Id);
     }
+
+    [Fact]
+    public async Task CreateDriver_WithInvalidData_Returns400BadRequest()
+    {
+        using var factory = new MatchingPricingApiFactory();
+        using var client = factory.CreateClient();
+        await factory.InitializeDatabaseAsync();
+
+        var request = new CreateDriverRequest("", "invalid-phone");
+        var response = await client.PostAsJsonAsync("/api/drivers", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetDriverById_WithNonExistentId_Returns404NotFound()
+    {
+        using var factory = new MatchingPricingApiFactory();
+        using var client = factory.CreateClient();
+        await factory.InitializeDatabaseAsync();
+
+        var response = await client.GetAsync("/api/drivers/99999");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }
 

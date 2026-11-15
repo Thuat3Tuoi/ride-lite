@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using MatchingPricing.Application.Abstractions.Data;
+using MatchingPricing.Application.Abstractions.Messaging;
 using MatchingPricing.Domain.Errors;
 
 namespace MatchingPricing.Application.Features.Driver.Commands.UpdateDriverLocation;
 
-public sealed class UpdateDriverLocationHandler
+public sealed class UpdateDriverLocationHandler : ICommandHandler<UpdateDriverLocationCommand, UpdateDriverLocationResult>
 {
     private readonly IDriverRepository _driverRepository;
 
