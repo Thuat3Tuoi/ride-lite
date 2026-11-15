@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.CompleteTrip;
 
-public sealed class CompleteTripHandler
+public sealed class CompleteTripHandler : ICommandHandler<CompleteTripCommand, CompleteTripResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -42,4 +43,3 @@ public sealed class CompleteTripHandler
         );
     }
 }
-

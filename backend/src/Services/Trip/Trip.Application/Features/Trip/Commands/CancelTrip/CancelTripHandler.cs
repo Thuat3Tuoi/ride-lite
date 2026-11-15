@@ -1,11 +1,12 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Enumerators;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.CancelTrip;
 
-public sealed class CancelTripHandler
+public sealed class CancelTripHandler : ICommandHandler<CancelTripCommand, CancelTripResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -55,4 +56,3 @@ public sealed class CancelTripHandler
         );
     }
 }
-

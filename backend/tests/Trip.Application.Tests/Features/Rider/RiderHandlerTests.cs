@@ -1,4 +1,6 @@
 using BuildingBlocks.SharedKernel.Exceptions;
+using Trip.Application.Abstractions.Messaging;
+using Trip.Application.Common.Validation;
 using Trip.Application.Features.Rider.Commands.CreateRider;
 using Trip.Application.Features.Rider.Commands.UpdateRiderProfile;
 using Trip.Application.Features.Rider.Queries.GetRiderById;
@@ -117,6 +119,47 @@ public class RiderHandlerTests
         var result = await handler.HandleAsync(new GetRidersQuery(1, 10));
 
         Assert.Equal(2, result.Items.Count);
+    }
+
+    private ICommandHandler<CreateRiderCommand, CreateRiderResult> CreateDecoratedCreateRiderHandler()
+        => new ValidationCommandHandlerDecorator<CreateRiderCommand, CreateRiderResult>(
+            new CreateRiderHandler(_repo),
+            new CreateRiderCommandValidator());
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task CreateRider_WithEmptyFullName_ShouldThrowInvalidFullName(string invalidName)
+    {
+        var handler = CreateDecoratedCreateRiderHandler();
+        var command = new CreateRiderCommand(invalidName, "0912345678");
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidFullName.Code, ex.Error.Code);
+    }
+
+    [Theory]
+    [InlineData("12345")]
+    [InlineData("091234567")]
+    [InlineData("abcdefghij")]
+    public async Task CreateRider_WithInvalidPhoneNumber_ShouldThrowInvalidPhoneNumber(string invalidPhone)
+    {
+        var handler = CreateDecoratedCreateRiderHandler();
+        var command = new CreateRiderCommand("Valid Name", invalidPhone);
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidPhoneNumber.Code, ex.Error.Code);
+    }
+
+    [Fact]
+    public async Task CreateRider_WithFutureDateOfBirth_ShouldThrowInvalidDateOfBirth()
+    {
+        var handler = CreateDecoratedCreateRiderHandler();
+        var futureDob = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+        var command = new CreateRiderCommand("Valid Name", "0912345678", futureDob);
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidDateOfBirth.Code, ex.Error.Code);
     }
 }
 

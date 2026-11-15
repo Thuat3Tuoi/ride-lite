@@ -1,12 +1,13 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Application.Abstractions.Pricing;
 using Trip.Domain.Errors;
 using TripEntity = Trip.Domain.Entities.Trip;
 
 namespace Trip.Application.Features.Trip.Commands.CreateTrip;
 
-public sealed class CreateTripHandler
+public sealed class CreateTripHandler : ICommandHandler<CreateTripCommand, CreateTripResult>
 {
     private readonly ITripRepository _tripRepository;
     private readonly IRiderRepository _riderRepository;
@@ -33,7 +34,7 @@ public sealed class CreateTripHandler
             throw new AppException(TripErrors.RiderNotFound);
         }
 
-        // 2. Calculate/validate fare via Pricing Service (Authoritative fare, never trust client)
+        // 2. Calculate fare via Pricing Service (Authoritative fare, never trust client)
         var authoritativeCost = await _pricingService.CalculateFareAsync(
             command.PickupLatitude,
             command.PickupLongitude,
@@ -47,7 +48,7 @@ public sealed class CreateTripHandler
             throw new AppException(TripErrors.InvalidCost);
         }
 
-        // 3. Create domain entity
+        // 3. Create Trip entity using authoritative cost
         var trip = TripEntity.Create(
             command.RiderId,
             command.PickupAddress,
@@ -59,7 +60,6 @@ public sealed class CreateTripHandler
             authoritativeCost
         );
 
-        // 4. Save trip
         await _tripRepository.AddAsync(trip, cancellationToken);
         await _tripRepository.SaveChangesAsync(cancellationToken);
 
@@ -80,4 +80,3 @@ public sealed class CreateTripHandler
         );
     }
 }
-

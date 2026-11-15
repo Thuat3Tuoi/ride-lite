@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.DriverArrive;
 
-public sealed class DriverArriveHandler
+public sealed class DriverArriveHandler : ICommandHandler<DriverArriveCommand, DriverArriveResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -42,4 +43,3 @@ public sealed class DriverArriveHandler
         );
     }
 }
-

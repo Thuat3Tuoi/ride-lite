@@ -1,4 +1,5 @@
 using BuildingBlocks.SharedKernel.Exceptions;
+using Trip.Application.Common.Validation;
 using Trip.Application.Features.Trip.Commands.AcceptTripDriver;
 using Trip.Application.Features.Trip.Commands.CancelTrip;
 using Trip.Application.Features.Trip.Commands.CompleteTrip;
@@ -263,5 +264,87 @@ public class TripHandlerTests
         var result = await handler.HandleAsync(new GetTripsByStatusQuery(TripStatus.SEARCHING_DRIVER));
 
         Assert.Single(result.Items);
+    }
+
+    [Theory]
+    [InlineData(91, 106.69)]
+    [InlineData(-91, 106.69)]
+    [InlineData(10.77, 181)]
+    [InlineData(10.77, -181)]
+    public async Task CreateTrip_WithInvalidCoordinates_ShouldThrowInvalidCoordinates(decimal lat, decimal lng)
+    {
+        var rawHandler = new CreateTripHandler(_tripRepo, _riderRepo, _pricingService);
+        var handler = new ValidationCommandHandlerDecorator<CreateTripCommand, CreateTripResult>(
+            rawHandler,
+            new CreateTripCommandValidator());
+
+        var command = new CreateTripCommand(
+            RiderId: 1L,
+            PickupAddress: "Ben Thanh, District 1, HCMC",
+            PickupLatitude: lat,
+            PickupLongitude: lng,
+            DropoffAddress: "Landmark 81, Binh Thanh, HCMC",
+            DropoffLatitude: 10.7950m,
+            DropoffLongitude: 106.7218m
+        );
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidCoordinates.Code, ex.Error.Code);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task CreateTrip_WithEmptyAddress_ShouldThrowInvalidCoordinates(string emptyAddress)
+    {
+        var rawHandler = new CreateTripHandler(_tripRepo, _riderRepo, _pricingService);
+        var handler = new ValidationCommandHandlerDecorator<CreateTripCommand, CreateTripResult>(
+            rawHandler,
+            new CreateTripCommandValidator());
+
+        var command = new CreateTripCommand(
+            RiderId: 1L,
+            PickupAddress: emptyAddress,
+            PickupLatitude: 10.7725m,
+            PickupLongitude: 106.6980m,
+            DropoffAddress: "Landmark 81, Binh Thanh, HCMC",
+            DropoffLatitude: 10.7950m,
+            DropoffLongitude: 106.7218m
+        );
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidCoordinates.Code, ex.Error.Code);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task AcceptTripDriver_WithInvalidDriverId_ShouldThrowInvalidDriverId(long invalidDriverId)
+    {
+        var rawHandler = new AcceptTripDriverHandler(_tripRepo);
+        var handler = new ValidationCommandHandlerDecorator<AcceptTripDriverCommand, AcceptTripDriverResult>(
+            rawHandler,
+            new AcceptTripDriverCommandValidator());
+
+        var command = new AcceptTripDriverCommand(1L, invalidDriverId);
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.InvalidDriverId.Code, ex.Error.Code);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-5)]
+    public async Task StartTrip_WithInvalidTripId_ShouldThrowNotFound(long invalidTripId)
+    {
+        var rawHandler = new StartTripHandler(_tripRepo);
+        var handler = new ValidationCommandHandlerDecorator<StartTripCommand, StartTripResult>(
+            rawHandler,
+            new StartTripCommandValidator());
+
+        var command = new StartTripCommand(invalidTripId);
+
+        var ex = await Assert.ThrowsAsync<AppException>(() => handler.HandleAsync(command));
+        Assert.Equal(TripErrors.NotFound.Code, ex.Error.Code);
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Application.Features.Rider.Commands.CreateRider;
 using Trip.Application.Features.Rider.Commands.UpdateRiderProfile;
 using Trip.Application.Features.Rider.Queries.GetRiderById;
@@ -19,7 +20,7 @@ public sealed class RidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<RiderResponse>> Create(
         [FromBody] CreateRiderRequest request,
-        [FromServices] CreateRiderHandler handler,
+        [FromServices] ICommandHandler<CreateRiderCommand, CreateRiderResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new CreateRiderCommand(
@@ -47,7 +48,7 @@ public sealed class RidersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RiderResponse>> GetById(
         long id,
-        [FromServices] GetRiderByIdHandler handler,
+        [FromServices] IQueryHandler<GetRiderByIdQuery, GetRiderByIdResult> handler,
         CancellationToken cancellationToken)
     {
         var query = new GetRiderByIdQuery(id);
@@ -68,7 +69,7 @@ public sealed class RidersController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<RiderResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RiderResponse>>> GetAll(
-        [FromServices] GetRidersHandler handler,
+        [FromServices] IQueryHandler<GetRidersQuery, GetRidersResult> handler,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -96,7 +97,7 @@ public sealed class RidersController : ControllerBase
     public async Task<ActionResult<RiderResponse>> UpdateProfile(
         long id,
         [FromBody] UpdateRiderProfileRequest request,
-        [FromServices] UpdateRiderProfileHandler handler,
+        [FromServices] ICommandHandler<UpdateRiderProfileCommand, UpdateRiderProfileResult> handler,
         CancellationToken cancellationToken)
     {
         var command = new UpdateRiderProfileCommand(

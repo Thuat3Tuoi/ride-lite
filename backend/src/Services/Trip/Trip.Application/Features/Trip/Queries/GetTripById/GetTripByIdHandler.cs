@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Queries.GetTripById;
 
-public sealed class GetTripByIdHandler
+public sealed class GetTripByIdHandler : IQueryHandler<GetTripByIdQuery, GetTripByIdResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -47,4 +48,3 @@ public sealed class GetTripByIdHandler
         );
     }
 }
-

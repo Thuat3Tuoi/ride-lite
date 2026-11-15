@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Rider.Commands.UpdateRiderProfile;
 
-public sealed class UpdateRiderProfileHandler
+public sealed class UpdateRiderProfileHandler : ICommandHandler<UpdateRiderProfileCommand, UpdateRiderProfileResult>
 {
     private readonly IRiderRepository _riderRepository;
 
@@ -23,8 +24,7 @@ public sealed class UpdateRiderProfileHandler
             throw new AppException(TripErrors.RiderNotFound);
         }
 
-        var normalizedPhone = command.PhoneNumber?.Trim() ?? string.Empty;
-
+        var normalizedPhone = command.PhoneNumber.Trim();
         if (!string.Equals(rider.PhoneNumber, normalizedPhone, StringComparison.OrdinalIgnoreCase))
         {
             var exists = await _riderRepository.ExistsByPhoneNumberAsync(normalizedPhone, cancellationToken);
@@ -47,4 +47,3 @@ public sealed class UpdateRiderProfileHandler
         );
     }
 }
-

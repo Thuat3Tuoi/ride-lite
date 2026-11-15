@@ -1,9 +1,10 @@
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Application.Features.Trip.Queries.GetTripById;
 
 namespace Trip.Application.Features.Trip.Queries.GetTripsByStatus;
 
-public sealed class GetTripsByStatusHandler
+public sealed class GetTripsByStatusHandler : IQueryHandler<GetTripsByStatusQuery, GetTripsByStatusResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -44,4 +45,3 @@ public sealed class GetTripsByStatusHandler
         return new GetTripsByStatusResult(items);
     }
 }
-

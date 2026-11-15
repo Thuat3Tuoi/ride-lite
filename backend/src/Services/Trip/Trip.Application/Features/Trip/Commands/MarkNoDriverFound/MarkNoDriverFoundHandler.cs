@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.MarkNoDriverFound;
 
-public sealed class MarkNoDriverFoundHandler
+public sealed class MarkNoDriverFoundHandler : ICommandHandler<MarkNoDriverFoundCommand, MarkNoDriverFoundResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -41,4 +42,3 @@ public sealed class MarkNoDriverFoundHandler
         );
     }
 }
-

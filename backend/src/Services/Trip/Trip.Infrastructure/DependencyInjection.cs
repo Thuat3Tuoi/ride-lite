@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Trip.Application;
 using Trip.Application.Abstractions.Data;
 using Trip.Application.Abstractions.Pricing;
 using Trip.Application.Features.Rider.Commands.CreateRider;
@@ -45,6 +46,9 @@ public static class DependencyInjection
 
         // Pricing Service
         services.AddScoped<IPricingService, PricingService>();
+
+        // Application (FluentValidation validators)
+        services.AddApplication();
 
         // Handlers
         services.AddTripHandlers();

@@ -1,11 +1,12 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Entities;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Rider.Commands.CreateRider;
 
-public sealed class CreateRiderHandler
+public sealed class CreateRiderHandler : ICommandHandler<CreateRiderCommand, CreateRiderResult>
 {
     private readonly IRiderRepository _riderRepository;
 
@@ -18,8 +19,7 @@ public sealed class CreateRiderHandler
         CreateRiderCommand command,
         CancellationToken cancellationToken = default)
     {
-        var normalizedPhone = command.PhoneNumber?.Trim() ?? string.Empty;
-
+        var normalizedPhone = command.PhoneNumber.Trim();
         var exists = await _riderRepository.ExistsByPhoneNumberAsync(normalizedPhone, cancellationToken);
         if (exists)
         {
@@ -45,4 +45,3 @@ public sealed class CreateRiderHandler
         );
     }
 }
-

@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.StartTrip;
 
-public sealed class StartTripHandler
+public sealed class StartTripHandler : ICommandHandler<StartTripCommand, StartTripResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -42,4 +43,3 @@ public sealed class StartTripHandler
         );
     }
 }
-

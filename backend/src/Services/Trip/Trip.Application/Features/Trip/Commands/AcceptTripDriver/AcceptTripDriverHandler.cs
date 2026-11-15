@@ -1,10 +1,11 @@
 using BuildingBlocks.SharedKernel.Exceptions;
 using Trip.Application.Abstractions.Data;
+using Trip.Application.Abstractions.Messaging;
 using Trip.Domain.Errors;
 
 namespace Trip.Application.Features.Trip.Commands.AcceptTripDriver;
 
-public sealed class AcceptTripDriverHandler
+public sealed class AcceptTripDriverHandler : ICommandHandler<AcceptTripDriverCommand, AcceptTripDriverResult>
 {
     private readonly ITripRepository _tripRepository;
 
@@ -47,4 +48,3 @@ public sealed class AcceptTripDriverHandler
         );
     }
 }
-
