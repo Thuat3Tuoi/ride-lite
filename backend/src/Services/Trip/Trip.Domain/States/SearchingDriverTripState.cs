@@ -15,18 +15,18 @@ public sealed class SearchingDriverTripState : TripState
 
         trip.SetDriver(driverId);
         trip.SetAcceptedAt(DateTimeOffset.UtcNow);
-        trip.TransitionTo(DriverAccepted);
+        trip.TransitionTo(TripStateFactory.Instance.DriverAccepted);
     }
 
     public override void Cancel(Entities.Trip trip, CancelledBy cancelledBy, string? reason)
     {
         trip.SetCancellation(cancelledBy, reason, DateTimeOffset.UtcNow);
-        trip.TransitionTo(Cancelled);
+        trip.TransitionTo(TripStateFactory.Instance.Cancelled);
     }
 
     public override void MarkNoDriverFound(Entities.Trip trip)
     {
-        trip.TransitionTo(NoDriverFound);
+        trip.TransitionTo(TripStateFactory.Instance.NoDriverFound);
     }
 }
 

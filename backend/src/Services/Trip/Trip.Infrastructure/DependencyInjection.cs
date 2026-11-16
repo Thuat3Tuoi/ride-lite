@@ -19,6 +19,7 @@ using Trip.Application.Features.Trip.Queries.GetTripById;
 using Trip.Application.Features.Trip.Queries.GetTripsByDriverId;
 using Trip.Application.Features.Trip.Queries.GetTripsByRiderId;
 using Trip.Application.Features.Trip.Queries.GetTripsByStatus;
+using Trip.Domain.States;
 using Trip.Infrastructure.Data.DataContext;
 using Trip.Infrastructure.Data.Repositories;
 using Trip.Infrastructure.Services.Pricing;
@@ -46,6 +47,9 @@ public static class DependencyInjection
 
         // Pricing Service
         services.AddScoped<IPricingService, PricingService>();
+
+        // State Factory
+        services.AddSingleton<ITripStateFactory, TripStateFactory>();
 
         // Application (FluentValidation validators)
         services.AddApplication();

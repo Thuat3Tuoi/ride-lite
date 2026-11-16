@@ -11,13 +11,13 @@ public sealed class DriverArrivedTripState : TripState
     public override void StartTrip(Entities.Trip trip)
     {
         trip.SetStartedAt(DateTimeOffset.UtcNow);
-        trip.TransitionTo(InProgress);
+        trip.TransitionTo(TripStateFactory.Instance.InProgress);
     }
 
     public override void Cancel(Entities.Trip trip, CancelledBy cancelledBy, string? reason)
     {
         trip.SetCancellation(cancelledBy, reason, DateTimeOffset.UtcNow);
-        trip.TransitionTo(Cancelled);
+        trip.TransitionTo(TripStateFactory.Instance.Cancelled);
     }
 }
 

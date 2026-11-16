@@ -28,7 +28,7 @@ public sealed class Trip
     public string? CancelReason { get; private set; }
     public TripStatus Status { get; private set; }
 
-    public TripState State => _state ??= TripState.FromStatus(Status);
+    public TripState State => _state ??= TripStateFactory.Instance.GetState(Status);
 
     public Rider? Rider { get; private set; }
 
@@ -68,7 +68,7 @@ public sealed class Trip
             DropoffLongitude = dropoffLongitude,
             Cost = cost,
             Status = TripStatus.SEARCHING_DRIVER,
-            _state = TripState.SearchingDriver,
+            _state = TripStateFactory.Instance.SearchingDriver,
             CreatedAt = now,
             UpdatedAt = now
         };

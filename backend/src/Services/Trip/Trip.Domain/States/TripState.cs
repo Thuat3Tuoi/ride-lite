@@ -4,13 +4,13 @@ namespace Trip.Domain.States;
 
 public abstract class TripState
 {
-    public static readonly TripState SearchingDriver = new SearchingDriverTripState();
-    public static readonly TripState DriverAccepted = new DriverAcceptedTripState();
-    public static readonly TripState DriverArrived = new DriverArrivedTripState();
-    public static readonly TripState InProgress = new InProgressTripState();
-    public static readonly TripState Completed = new CompletedTripState();
-    public static readonly TripState Cancelled = new CancelledTripState();
-    public static readonly TripState NoDriverFound = new NoDriverFoundTripState();
+    public static TripState SearchingDriver => TripStateFactory.Instance.SearchingDriver;
+    public static TripState DriverAccepted => TripStateFactory.Instance.DriverAccepted;
+    public static TripState DriverArrived => TripStateFactory.Instance.DriverArrived;
+    public static TripState InProgress => TripStateFactory.Instance.InProgress;
+    public static TripState Completed => TripStateFactory.Instance.Completed;
+    public static TripState Cancelled => TripStateFactory.Instance.Cancelled;
+    public static TripState NoDriverFound => TripStateFactory.Instance.NoDriverFound;
 
     public abstract TripStatus Status { get; }
 
@@ -44,16 +44,6 @@ public abstract class TripState
         throw new InvalidOperationException($"Cannot mark no driver found when trip status is '{trip.Status}'.");
     }
 
-    public static TripState FromStatus(TripStatus status) => status switch
-    {
-        TripStatus.SEARCHING_DRIVER => SearchingDriver,
-        TripStatus.DRIVER_ACCEPTED => DriverAccepted,
-        TripStatus.DRIVER_ARRIVED => DriverArrived,
-        TripStatus.IN_PROGRESS => InProgress,
-        TripStatus.COMPLETED => Completed,
-        TripStatus.CANCELLED => Cancelled,
-        TripStatus.NO_DRIVER_FOUND => NoDriverFound,
-        _ => throw new ArgumentOutOfRangeException(nameof(status), status, $"Unsupported trip status: {status}")
-    };
+    public static TripState FromStatus(TripStatus status) => TripStateFactory.Instance.GetState(status);
 }
 

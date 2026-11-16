@@ -11,13 +11,13 @@ public sealed class InProgressTripState : TripState
     public override void CompleteTrip(Entities.Trip trip)
     {
         trip.SetCompletedAt(DateTimeOffset.UtcNow);
-        trip.TransitionTo(Completed);
+        trip.TransitionTo(TripStateFactory.Instance.Completed);
     }
 
     public override void Cancel(Entities.Trip trip, CancelledBy cancelledBy, string? reason)
     {
         trip.SetCancellation(cancelledBy, reason, DateTimeOffset.UtcNow);
-        trip.TransitionTo(Cancelled);
+        trip.TransitionTo(TripStateFactory.Instance.Cancelled);
     }
 }
 
