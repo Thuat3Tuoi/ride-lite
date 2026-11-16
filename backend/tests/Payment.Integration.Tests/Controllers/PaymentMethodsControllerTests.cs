@@ -28,7 +28,7 @@ public sealed class PaymentMethodsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/payment-methods", request);
+        var response = await client.PostAsJsonAsync("/api/payment/payment-methods", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -63,7 +63,7 @@ public sealed class PaymentMethodsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/payment-methods", request);
+        var response = await client.PostAsJsonAsync("/api/payment/payment-methods", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
@@ -78,7 +78,7 @@ public sealed class PaymentMethodsControllerTests
         await factory.InitializeDatabaseAsync();
 
         // Act
-        var response = await client.GetAsync("/api/payment-methods/active");
+        var response = await client.GetAsync("/api/payment/payment-methods/active");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -101,14 +101,14 @@ public sealed class PaymentMethodsControllerTests
         var cashMethod = await db.PaymentMethods.FirstAsync(m => m.Code == "CASH");
 
         // Deactivate
-        var deactResponse = await client.PutAsync($"/api/payment-methods/{cashMethod.Id}/deactivate", null);
+        var deactResponse = await client.PutAsync($"/api/payment/payment-methods/{cashMethod.Id}/deactivate", null);
         Assert.Equal(HttpStatusCode.OK, deactResponse.StatusCode);
         var deactResult = await deactResponse.Content.ReadFromJsonAsync<PaymentMethodStatusResponse>();
         Assert.NotNull(deactResult);
         Assert.False(deactResult.Active);
 
         // Activate again
-        var actResponse = await client.PutAsync($"/api/payment-methods/{cashMethod.Id}/activate", null);
+        var actResponse = await client.PutAsync($"/api/payment/payment-methods/{cashMethod.Id}/activate", null);
         Assert.Equal(HttpStatusCode.OK, actResponse.StatusCode);
         var actResult = await actResponse.Content.ReadFromJsonAsync<PaymentMethodStatusResponse>();
         Assert.NotNull(actResult);

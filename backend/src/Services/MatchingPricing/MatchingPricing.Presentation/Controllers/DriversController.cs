@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MatchingPricing.Presentation.Controllers;
 
 [ApiController]
-[Route("api/drivers")]
+[Route("drivers")]
 public sealed class DriversController : ControllerBase
 {
     [HttpPost]

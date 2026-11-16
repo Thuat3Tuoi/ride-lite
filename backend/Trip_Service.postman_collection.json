@@ -32,9 +32,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/trip/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["trip", "health"]
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         }
@@ -72,9 +76,15 @@
               "raw": "{\n  \"fullName\": \"Nguyen Van A\",\n  \"phoneNumber\": \"0912345678\",\n  \"dateOfBirth\": \"1995-05-20\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/riders",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "riders"]
+              "raw": "{{baseUrl}}/api/trip/riders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "riders"
+              ]
             }
           }
         },
@@ -84,9 +94,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/riders/{{riderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "riders", "{{riderId}}"]
+              "raw": "{{baseUrl}}/api/trip/riders/{{riderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "riders",
+                "{{riderId}}"
+              ]
             }
           }
         },
@@ -96,9 +113,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/riders?page=1&pageSize=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "riders"],
+              "raw": "{{baseUrl}}/api/trip/riders?page=1&pageSize=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "riders"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -127,9 +150,16 @@
               "raw": "{\n  \"fullName\": \"Nguyen Van A Updated\",\n  \"phoneNumber\": \"0912345678\",\n  \"dateOfBirth\": \"1995-05-20\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/riders/{{riderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "riders", "{{riderId}}"]
+              "raw": "{{baseUrl}}/api/trip/riders/{{riderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "riders",
+                "{{riderId}}"
+              ]
             }
           }
         }
@@ -167,9 +197,15 @@
               "raw": "{\n  \"riderId\": {{riderId}},\n  \"pickupAddress\": \"Ben Thanh, District 1, HCMC\",\n  \"pickupLatitude\": 10.7725,\n  \"pickupLongitude\": 106.6980,\n  \"dropoffAddress\": \"Landmark 81, Binh Thanh, HCMC\",\n  \"dropoffLatitude\": 10.7950,\n  \"dropoffLongitude\": 106.7218\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/trips",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips"]
+              "raw": "{{baseUrl}}/api/trip/trips",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips"
+              ]
             }
           }
         },
@@ -179,9 +215,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}"
+              ]
             }
           }
         },
@@ -191,9 +234,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/rider/{{riderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "rider", "{{riderId}}"]
+              "raw": "{{baseUrl}}/api/trip/trips/rider/{{riderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "rider",
+                "{{riderId}}"
+              ]
             }
           }
         },
@@ -203,9 +254,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/status/SEARCHING_DRIVER",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "status", "SEARCHING_DRIVER"]
+              "raw": "{{baseUrl}}/api/trip/trips/status/SEARCHING_DRIVER",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "status",
+                "SEARCHING_DRIVER"
+              ]
             }
           }
         },
@@ -224,9 +283,17 @@
               "raw": "{\n  \"driverId\": 888\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/accept-driver",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "accept-driver"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/accept-driver",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "accept-driver"
+              ]
             }
           }
         },
@@ -236,9 +303,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/driver/888",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "driver", "888"]
+              "raw": "{{baseUrl}}/api/trip/trips/driver/888",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "driver",
+                "888"
+              ]
             }
           }
         },
@@ -248,9 +323,17 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/driver-arrived",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "driver-arrived"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/driver-arrived",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "driver-arrived"
+              ]
             }
           }
         },
@@ -260,9 +343,17 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/start",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "start"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "start"
+              ]
             }
           }
         },
@@ -272,9 +363,17 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/complete",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "complete"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "complete"
+              ]
             }
           }
         },
@@ -293,9 +392,17 @@
               "raw": "{\n  \"cancelledBy\": \"RIDER\",\n  \"reason\": \"Changed mind\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "cancel"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "cancel"
+              ]
             }
           }
         },
@@ -305,9 +412,17 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/trips/{{tripId}}/no-driver",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "trips", "{{tripId}}", "no-driver"]
+              "raw": "{{baseUrl}}/api/trip/trips/{{tripId}}/no-driver",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "trip",
+                "trips",
+                "{{tripId}}",
+                "no-driver"
+              ]
             }
           }
         }
@@ -315,4 +430,3 @@
     }
   ]
 }
-

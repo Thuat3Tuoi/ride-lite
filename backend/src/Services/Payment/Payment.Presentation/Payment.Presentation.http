@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:5003
 
 ### 0. Health Check
-GET {{baseUrl}}/payment/health
+GET {{baseUrl}}/health
 Accept: application/json
 
 ### =========================================================================
@@ -10,7 +10,7 @@ Accept: application/json
 
 ### 1.1 Create Provider
 # @name createProvider
-POST {{baseUrl}}/api/payment-providers
+POST {{baseUrl}}/api/payment/payment-providers
 Content-Type: application/json
 
 {
@@ -24,16 +24,16 @@ Content-Type: application/json
 @providerId = {{createProvider.response.body.id}}
 
 ### 1.2 Get Provider by Id
-GET {{baseUrl}}/api/payment-providers/{{providerId}}
+GET {{baseUrl}}/api/payment/payment-providers/{{providerId}}
 
 ### 1.3 Get Active Providers
-GET {{baseUrl}}/api/payment-providers/active
+GET {{baseUrl}}/api/payment/payment-providers/active
 
 ### 1.4 Deactivate Provider
-PUT {{baseUrl}}/api/payment-providers/{{providerId}}/deactivate
+PUT {{baseUrl}}/api/payment/payment-providers/{{providerId}}/deactivate
 
 ### 1.5 Activate Provider
-PUT {{baseUrl}}/api/payment-providers/{{providerId}}/activate
+PUT {{baseUrl}}/api/payment/payment-providers/{{providerId}}/activate
 
 ### =========================================================================
 ### 2. PAYMENT METHODS
@@ -41,7 +41,7 @@ PUT {{baseUrl}}/api/payment-providers/{{providerId}}/activate
 
 ### 2.1 Create Payment Method
 # @name createMethod
-POST {{baseUrl}}/api/payment-methods
+POST {{baseUrl}}/api/payment/payment-methods
 Content-Type: application/json
 
 {
@@ -53,16 +53,16 @@ Content-Type: application/json
 @methodId = {{createMethod.response.body.id}}
 
 ### 2.2 Get Payment Method by Id
-GET {{baseUrl}}/api/payment-methods/{{methodId}}
+GET {{baseUrl}}/api/payment/payment-methods/{{methodId}}
 
 ### 2.3 Get Active Payment Methods
-GET {{baseUrl}}/api/payment-methods/active
+GET {{baseUrl}}/api/payment/payment-methods/active
 
 ### 2.4 Deactivate Method
-PUT {{baseUrl}}/api/payment-methods/{{methodId}}/deactivate
+PUT {{baseUrl}}/api/payment/payment-methods/{{methodId}}/deactivate
 
 ### 2.5 Activate Method
-PUT {{baseUrl}}/api/payment-methods/{{methodId}}/activate
+PUT {{baseUrl}}/api/payment/payment-methods/{{methodId}}/activate
 
 ### =========================================================================
 ### 3. PAYMENT OPTIONS
@@ -70,7 +70,7 @@ PUT {{baseUrl}}/api/payment-methods/{{methodId}}/activate
 
 ### 3.1 Create Payment Option
 # @name createOption
-POST {{baseUrl}}/api/payment-options
+POST {{baseUrl}}/api/payment/payment-options
 Content-Type: application/json
 
 {
@@ -84,19 +84,19 @@ Content-Type: application/json
 @optionId = {{createOption.response.body.id}}
 
 ### 3.2 Get Payment Option by Id
-GET {{baseUrl}}/api/payment-options/{{optionId}}
+GET {{baseUrl}}/api/payment/payment-options/{{optionId}}
 
 ### 3.3 Get Active Payment Options
-GET {{baseUrl}}/api/payment-options/active
+GET {{baseUrl}}/api/payment/payment-options/active
 
 ### 3.4 Get Payment Options by Method Id
-GET {{baseUrl}}/api/payment-options/method/{{methodId}}
+GET {{baseUrl}}/api/payment/payment-options/method/{{methodId}}
 
 ### 3.5 Deactivate Option
-PUT {{baseUrl}}/api/payment-options/{{optionId}}/deactivate
+PUT {{baseUrl}}/api/payment/payment-options/{{optionId}}/deactivate
 
 ### 3.6 Activate Option
-PUT {{baseUrl}}/api/payment-options/{{optionId}}/activate
+PUT {{baseUrl}}/api/payment/payment-options/{{optionId}}/activate
 
 ### =========================================================================
 ### 4. PAYMENTS
@@ -104,7 +104,7 @@ PUT {{baseUrl}}/api/payment-options/{{optionId}}/activate
 
 ### 4.1 Create Payment
 # @name createPayment
-POST {{baseUrl}}/api/payments
+POST {{baseUrl}}/api/payment/payments
 Content-Type: application/json
 
 {
@@ -118,16 +118,16 @@ Content-Type: application/json
 @paymentId = {{createPayment.response.body.id}}
 
 ### 4.2 Get Payment by Id
-GET {{baseUrl}}/api/payments/{{paymentId}}
+GET {{baseUrl}}/api/payment/payments/{{paymentId}}
 
 ### 4.3 Get Payment by Trip Id
-GET {{baseUrl}}/api/payments/trip/1001
+GET {{baseUrl}}/api/payment/payments/trip/1001
 
 ### 4.4 Process Payment
-POST {{baseUrl}}/api/payments/{{paymentId}}/process
+POST {{baseUrl}}/api/payment/payments/{{paymentId}}/process
 
 ### 4.5 Complete Payment
-POST {{baseUrl}}/api/payments/{{paymentId}}/complete
+POST {{baseUrl}}/api/payment/payments/{{paymentId}}/complete
 Content-Type: application/json
 
 {
@@ -138,7 +138,7 @@ Content-Type: application/json
 
 ### 4.6 Create Payment to Cancel
 # @name createPaymentCancel
-POST {{baseUrl}}/api/payments
+POST {{baseUrl}}/api/payment/payments
 Content-Type: application/json
 
 {
@@ -152,7 +152,7 @@ Content-Type: application/json
 @cancelPaymentId = {{createPaymentCancel.response.body.id}}
 
 ### 4.7 Cancel Payment
-POST {{baseUrl}}/api/payments/{{cancelPaymentId}}/cancel
+POST {{baseUrl}}/api/payment/payments/{{cancelPaymentId}}/cancel
 Content-Type: application/json
 
 {
@@ -165,7 +165,7 @@ Content-Type: application/json
 
 ### 5.1 Create Refund
 # @name createRefund
-POST {{baseUrl}}/api/refunds
+POST {{baseUrl}}/api/payment/refunds
 Content-Type: application/json
 
 {
@@ -178,16 +178,16 @@ Content-Type: application/json
 @refundId = {{createRefund.response.body.id}}
 
 ### 5.2 Get Refund by Id
-GET {{baseUrl}}/api/refunds/{{refundId}}
+GET {{baseUrl}}/api/payment/refunds/{{refundId}}
 
 ### 5.3 Get Refunds by Payment Id
-GET {{baseUrl}}/api/refunds/payment/{{paymentId}}
+GET {{baseUrl}}/api/payment/refunds/payment/{{paymentId}}
 
 ### 5.4 Process Refund
-POST {{baseUrl}}/api/refunds/{{refundId}}/process
+POST {{baseUrl}}/api/payment/refunds/{{refundId}}/process
 
 ### 5.5 Complete Refund
-POST {{baseUrl}}/api/refunds/{{refundId}}/complete
+POST {{baseUrl}}/api/payment/refunds/{{refundId}}/complete
 Content-Type: application/json
 
 {
@@ -199,7 +199,7 @@ Content-Type: application/json
 ### =========================================================================
 
 ### 6.1 Create Payment Ledger Entry
-POST {{baseUrl}}/api/ledger-entries/payment
+POST {{baseUrl}}/api/payment/ledger-entries/payment
 Content-Type: application/json
 
 {
@@ -210,7 +210,7 @@ Content-Type: application/json
 }
 
 ### 6.2 Create Refund Ledger Entry
-POST {{baseUrl}}/api/ledger-entries/refund
+POST {{baseUrl}}/api/payment/ledger-entries/refund
 Content-Type: application/json
 
 {
@@ -222,7 +222,7 @@ Content-Type: application/json
 }
 
 ### 6.3 Get Ledger Entries by Payment Id
-GET {{baseUrl}}/api/ledger-entries/payment/{{paymentId}}
+GET {{baseUrl}}/api/payment/ledger-entries/payment/{{paymentId}}
 
 ### 6.4 Get Ledger Entries by Refund Id
-GET {{baseUrl}}/api/ledger-entries/refund/{{refundId}}
+GET {{baseUrl}}/api/payment/ledger-entries/refund/{{refundId}}

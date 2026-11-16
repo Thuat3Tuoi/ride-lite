@@ -1,11 +1,17 @@
 using System.Text.Json.Serialization;
 using Trip.Infrastructure;
+using Trip.Presentation.Conventions;
 using Trip.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var routePrefix = builder.Configuration["RoutePrefix"] ?? "api/trip";
+
 // Presentation
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Conventions.Add(new GlobalRoutePrefixConvention(routePrefix));
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -23,7 +29,12 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.MapGet("/trip/health", () => Results.Ok(new 
+app.MapGet("/health", () => Results.Ok(new 
+{
+    status = "trip-service active"
+}));
+
+app.MapGet("/api/trip/health", () => Results.Ok(new 
 {
     status = "trip-service active"
 }));

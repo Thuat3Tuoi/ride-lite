@@ -119,10 +119,10 @@ dotnet run --project src/Gateway/ApiGateway/ApiGateway.csproj --launch-profile h
 
 | Dịch vụ | Cổng | URL Kiểm tra (Health Check) | Kết quả mong đợi |
 | :--- | :--- | :--- | :--- |
-| **ApiGateway** | `5000` | <http://localhost:5000/> | `Hello World!` |
-| **Trip** | `5001` | <http://localhost:5001/trip/health> | `{"status":"trip-service active"}` |
-| **MatchingPricing** | `5002` | <http://localhost:5002/matching/health> | `{"status":"matchingpricing-service active"}` |
-| **Payment** | `5003` | <http://localhost:5003/payment/health> | `{"status":"payment-service active"}` |
+| **ApiGateway** | `5000` | <http://localhost:5000/health> | `{"status":"apigateway active"}` |
+| **Trip** | `5001` | <http://localhost:5001/health> | `{"status":"trip-service active"}` |
+| **MatchingPricing** | `5002` | <http://localhost:5002/health> | `{"status":"matchingpricing-service active"}` |
+| **Payment** | `5003` | <http://localhost:5003/health> | `{"status":"payment-service active"}` |
 
 ### Tài liệu OpenAPI & Postman:
 - **OpenAPI JSON**: Truy cập `<service-url>/openapi/v1.json` khi chạy ở profile `http` (môi trường Development).
@@ -132,14 +132,14 @@ dotnet run --project src/Gateway/ApiGateway/ApiGateway.csproj --launch-profile h
 
 ## 6. Chạy bộ kiểm thử (Testing)
 
-Dự án sở hữu 241 bài kiểm thử tự động (Unit Test & Integration Test với In-memory SQLite, không phụ thuộc vào PostgreSQL):
+Dự án sở hữu 499 bài kiểm thử tự động (Unit Test & Integration Test với In-memory SQLite, không phụ thuộc vào PostgreSQL):
 
 ```bash
 cd backend
 dotnet test RideLite.slnx
 ```
 
-Kết quả mong đợi: Toàn bộ 241 bài test đều vượt qua (`Passed! 241 passed, 0 failed`).
+Kết quả mong đợi: Toàn bộ 499 bài test đều vượt qua (`Passed! 499 passed, 0 failed`).
 
 ---
 

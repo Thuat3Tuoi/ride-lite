@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:5001
 
 ### 0. Health Check
-GET {{baseUrl}}/trip/health
+GET {{baseUrl}}/health
 Accept: application/json
 
 ### =========================================================================
@@ -10,7 +10,7 @@ Accept: application/json
 
 ### 1.1 Create Rider
 # @name createRider
-POST {{baseUrl}}/api/riders
+POST {{baseUrl}}/api/trip/riders
 Content-Type: application/json
 
 {
@@ -23,13 +23,13 @@ Content-Type: application/json
 @riderId = {{createRider.response.body.id}}
 
 ### 1.2 Get Rider by Id
-GET {{baseUrl}}/api/riders/{{riderId}}
+GET {{baseUrl}}/api/trip/riders/{{riderId}}
 
 ### 1.3 List All Riders
-GET {{baseUrl}}/api/riders?page=1&pageSize=20
+GET {{baseUrl}}/api/trip/riders?page=1&pageSize=20
 
 ### 1.4 Update Rider Profile
-PUT {{baseUrl}}/api/riders/{{riderId}}
+PUT {{baseUrl}}/api/trip/riders/{{riderId}}
 Content-Type: application/json
 
 {
@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ### 2.1 Create / Book Trip
 # @name createTrip
-POST {{baseUrl}}/api/trips
+POST {{baseUrl}}/api/trip/trips
 Content-Type: application/json
 
 {
@@ -61,16 +61,16 @@ Content-Type: application/json
 @tripId = {{createTrip.response.body.id}}
 
 ### 2.2 Get Trip by Id
-GET {{baseUrl}}/api/trips/{{tripId}}
+GET {{baseUrl}}/api/trip/trips/{{tripId}}
 
 ### 2.3 Get Trips by Rider Id
-GET {{baseUrl}}/api/trips/rider/{{riderId}}
+GET {{baseUrl}}/api/trip/trips/rider/{{riderId}}
 
 ### 2.4 Get Trips by Status (SEARCHING_DRIVER)
-GET {{baseUrl}}/api/trips/status/SEARCHING_DRIVER
+GET {{baseUrl}}/api/trip/trips/status/SEARCHING_DRIVER
 
 ### 2.5 Driver Accepts Trip
-POST {{baseUrl}}/api/trips/{{tripId}}/accept-driver
+POST {{baseUrl}}/api/trip/trips/{{tripId}}/accept-driver
 Content-Type: application/json
 
 {
@@ -78,16 +78,16 @@ Content-Type: application/json
 }
 
 ### 2.6 Get Trips by Driver Id
-GET {{baseUrl}}/api/trips/driver/888
+GET {{baseUrl}}/api/trip/trips/driver/888
 
 ### 2.7 Driver Arrived at Pickup
-POST {{baseUrl}}/api/trips/{{tripId}}/driver-arrived
+POST {{baseUrl}}/api/trip/trips/{{tripId}}/driver-arrived
 
 ### 2.8 Start Trip (In Progress)
-POST {{baseUrl}}/api/trips/{{tripId}}/start
+POST {{baseUrl}}/api/trip/trips/{{tripId}}/start
 
 ### 2.9 Complete Trip
-POST {{baseUrl}}/api/trips/{{tripId}}/complete
+POST {{baseUrl}}/api/trip/trips/{{tripId}}/complete
 
 ### =========================================================================
 ### 3. CANCELLATION FLOW
@@ -95,7 +95,7 @@ POST {{baseUrl}}/api/trips/{{tripId}}/complete
 
 ### 3.1 Book another trip for cancellation
 # @name cancelableTrip
-POST {{baseUrl}}/api/trips
+POST {{baseUrl}}/api/trip/trips
 Content-Type: application/json
 
 {
@@ -111,7 +111,7 @@ Content-Type: application/json
 @cancelTripId = {{cancelableTrip.response.body.id}}
 
 ### 3.2 Cancel Trip
-POST {{baseUrl}}/api/trips/{{cancelTripId}}/cancel
+POST {{baseUrl}}/api/trip/trips/{{cancelTripId}}/cancel
 Content-Type: application/json
 
 {

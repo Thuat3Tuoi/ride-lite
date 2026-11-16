@@ -69,12 +69,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/payment/health",
+              "raw": "{{baseUrl}}/health",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "payment",
                 "health"
               ]
             }
@@ -119,12 +118,13 @@
               "raw": "{\n  \"code\": \"MOMO_{{$timestamp}}\",\n  \"name\": \"MoMo E-Wallet Gateway\",\n  \"handlerType\": \"Momo\",\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payment-providers",
+              "raw": "{{baseUrl}}/api/payment/payment-providers",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-providers"
               ]
             }
@@ -153,12 +153,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-providers/{{providerId}}",
+              "raw": "{{baseUrl}}/api/payment/payment-providers/{{providerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-providers",
                 "{{providerId}}"
               ]
@@ -188,12 +189,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-providers/active",
+              "raw": "{{baseUrl}}/api/payment/payment-providers/active",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-providers",
                 "active"
               ]
@@ -223,12 +225,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-providers/{{providerId}}/deactivate",
+              "raw": "{{baseUrl}}/api/payment/payment-providers/{{providerId}}/deactivate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-providers",
                 "{{providerId}}",
                 "deactivate"
@@ -259,12 +262,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-providers/{{providerId}}/activate",
+              "raw": "{{baseUrl}}/api/payment/payment-providers/{{providerId}}/activate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-providers",
                 "{{providerId}}",
                 "activate"
@@ -311,12 +315,13 @@
               "raw": "{\n  \"code\": \"EWALLET_{{$timestamp}}\",\n  \"name\": \"V\\u00ed \\u0111i\\u1ec7n t\\u1eed\",\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payment-methods",
+              "raw": "{{baseUrl}}/api/payment/payment-methods",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-methods"
               ]
             }
@@ -345,12 +350,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-methods/{{methodId}}",
+              "raw": "{{baseUrl}}/api/payment/payment-methods/{{methodId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-methods",
                 "{{methodId}}"
               ]
@@ -380,12 +386,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-methods/active",
+              "raw": "{{baseUrl}}/api/payment/payment-methods/active",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-methods",
                 "active"
               ]
@@ -415,12 +422,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-methods/{{methodId}}/deactivate",
+              "raw": "{{baseUrl}}/api/payment/payment-methods/{{methodId}}/deactivate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-methods",
                 "{{methodId}}",
                 "deactivate"
@@ -451,12 +459,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-methods/{{methodId}}/activate",
+              "raw": "{{baseUrl}}/api/payment/payment-methods/{{methodId}}/activate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-methods",
                 "{{methodId}}",
                 "activate"
@@ -503,12 +512,13 @@
               "raw": "{\n  \"methodId\": {{methodId}},\n  \"providerId\": {{providerId}},\n  \"code\": \"MOMO_WALLET_{{$timestamp}}\",\n  \"name\": \"Ví điện tử MoMo\",\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options",
+              "raw": "{{baseUrl}}/api/payment/payment-options",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options"
               ]
             }
@@ -537,12 +547,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options/{{optionId}}",
+              "raw": "{{baseUrl}}/api/payment/payment-options/{{optionId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options",
                 "{{optionId}}"
               ]
@@ -572,12 +583,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options/active",
+              "raw": "{{baseUrl}}/api/payment/payment-options/active",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options",
                 "active"
               ]
@@ -607,12 +619,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options/method/{{methodId}}",
+              "raw": "{{baseUrl}}/api/payment/payment-options/method/{{methodId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options",
                 "method",
                 "{{methodId}}"
@@ -643,12 +656,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options/{{optionId}}/deactivate",
+              "raw": "{{baseUrl}}/api/payment/payment-options/{{optionId}}/deactivate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options",
                 "{{optionId}}",
                 "deactivate"
@@ -679,12 +693,13 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payment-options/{{optionId}}/activate",
+              "raw": "{{baseUrl}}/api/payment/payment-options/{{optionId}}/activate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payment-options",
                 "{{optionId}}",
                 "activate"
@@ -732,12 +747,13 @@
               "raw": "{\n  \"tripId\": 1001,\n  \"paymentOptionId\": {{optionId}},\n  \"amount\": 150000,\n  \"idempotencyKey\": \"PAY-IDEM-{{$timestamp}}\",\n  \"providerId\": {{providerId}}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payments",
+              "raw": "{{baseUrl}}/api/payment/payments",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments"
               ]
             }
@@ -767,12 +783,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}",
+              "raw": "{{baseUrl}}/api/payment/payments/{{paymentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments",
                 "{{paymentId}}"
               ]
@@ -802,12 +819,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payments/trip/1001",
+              "raw": "{{baseUrl}}/api/payment/payments/trip/1001",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments",
                 "trip",
                 "1001"
@@ -838,12 +856,13 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/process",
+              "raw": "{{baseUrl}}/api/payment/payments/{{paymentId}}/process",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments",
                 "{{paymentId}}",
                 "process"
@@ -884,12 +903,13 @@
               "raw": "{\n  \"providerTransactionId\": \"MOMO_TXN_{{$timestamp}}\",\n  \"gatewayToken\": \"tok_momo_sample_token\",\n  \"resolvedProviderId\": {{providerId}}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payments/{{paymentId}}/complete",
+              "raw": "{{baseUrl}}/api/payment/payments/{{paymentId}}/complete",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments",
                 "{{paymentId}}",
                 "complete"
@@ -927,12 +947,13 @@
               "raw": "{\n  \"tripId\": 1002,\n  \"paymentOptionId\": {{optionId}},\n  \"amount\": 80000,\n  \"idempotencyKey\": \"PAY-CANCEL-{{$timestamp}}\",\n  \"providerId\": {{providerId}}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payments",
+              "raw": "{{baseUrl}}/api/payment/payments",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments"
               ]
             }
@@ -970,12 +991,13 @@
               "raw": "{\n  \"reason\": \"Kh\\u00e1ch h\\u00e0ng mu\\u1ed1n \\u0111\\u1ed5i chuy\\u1ebfn xe\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/payments/{{cancelPaymentId}}/cancel",
+              "raw": "{{baseUrl}}/api/payment/payments/{{cancelPaymentId}}/cancel",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "payments",
                 "{{cancelPaymentId}}",
                 "cancel"
@@ -1023,12 +1045,13 @@
               "raw": "{\n  \"paymentId\": {{paymentId}},\n  \"amount\": 50000,\n  \"idempotencyKey\": \"REF-IDEM-{{$timestamp}}\",\n  \"reason\": \"Refund partial trip payment\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/refunds",
+              "raw": "{{baseUrl}}/api/payment/refunds",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "refunds"
               ]
             }
@@ -1057,12 +1080,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/refunds/{{refundId}}",
+              "raw": "{{baseUrl}}/api/payment/refunds/{{refundId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "refunds",
                 "{{refundId}}"
               ]
@@ -1093,12 +1117,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/refunds/payment/{{paymentId}}",
+              "raw": "{{baseUrl}}/api/payment/refunds/payment/{{paymentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "refunds",
                 "payment",
                 "{{paymentId}}"
@@ -1129,12 +1154,13 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/refunds/{{refundId}}/process",
+              "raw": "{{baseUrl}}/api/payment/refunds/{{refundId}}/process",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "refunds",
                 "{{refundId}}",
                 "process"
@@ -1175,12 +1201,13 @@
               "raw": "{\n  \"providerRefundId\": \"MOMO_REFUND_TXN_{{$timestamp}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/refunds/{{refundId}}/complete",
+              "raw": "{{baseUrl}}/api/payment/refunds/{{refundId}}/complete",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "refunds",
                 "{{refundId}}",
                 "complete"
@@ -1227,12 +1254,13 @@
               "raw": "{\n  \"paymentId\": {{paymentId}},\n  \"amount\": 150000,\n  \"debitAccount\": \"MOMO_CLEARING\",\n  \"creditAccount\": \"TRIP_REVENUE\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/ledger-entries/payment",
+              "raw": "{{baseUrl}}/api/payment/ledger-entries/payment",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "ledger-entries",
                 "payment"
               ]
@@ -1273,12 +1301,13 @@
               "raw": "{\n  \"paymentId\": {{paymentId}},\n  \"refundId\": {{refundId}},\n  \"amount\": 50000,\n  \"debitAccount\": \"REFUND_EXPENSE\",\n  \"creditAccount\": \"MOMO_CLEARING\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/ledger-entries/refund",
+              "raw": "{{baseUrl}}/api/payment/ledger-entries/refund",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "ledger-entries",
                 "refund"
               ]
@@ -1309,12 +1338,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/ledger-entries/payment/{{paymentId}}",
+              "raw": "{{baseUrl}}/api/payment/ledger-entries/payment/{{paymentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "ledger-entries",
                 "payment",
                 "{{paymentId}}"
@@ -1346,12 +1376,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/ledger-entries/refund/{{refundId}}",
+              "raw": "{{baseUrl}}/api/payment/ledger-entries/refund/{{refundId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
+                "payment",
                 "ledger-entries",
                 "refund",
                 "{{refundId}}"

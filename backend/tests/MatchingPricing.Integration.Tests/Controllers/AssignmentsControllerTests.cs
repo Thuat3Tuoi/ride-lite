@@ -12,11 +12,11 @@ public sealed class AssignmentsControllerTests
 {
     private static async Task<long> CreateAvailableDriverAsync(HttpClient client, string phone)
     {
-        var response = await client.PostAsJsonAsync("/api/drivers",
+        var response = await client.PostAsJsonAsync("/api/matching/drivers",
             new CreateDriverRequest("Test Driver", phone, null, DriverStatus.available));
         var driver = await response.Content.ReadFromJsonAsync<DriverResponse>();
 
-        await client.PostAsJsonAsync($"/api/drivers/{driver!.Id}/status",
+        await client.PostAsJsonAsync($"/api/matching/drivers/{driver!.Id}/status",
             new UpdateDriverStatusRequest(DriverStatus.available));
 
         return driver.Id;
@@ -32,7 +32,7 @@ public sealed class AssignmentsControllerTests
         var driverId = await CreateAvailableDriverAsync(client, "0908000001");
 
         // 1. Create assignment
-        var createResponse = await client.PostAsJsonAsync("/api/assignments",
+        var createResponse = await client.PostAsJsonAsync("/api/matching/assignments",
             new CreateAssignmentRequest(2001L, driverId, TimeSpan.FromMinutes(2)));
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         var assignment = await createResponse.Content.ReadFromJsonAsync<DriverAssignmentResponse>();
@@ -40,12 +40,12 @@ public sealed class AssignmentsControllerTests
         Assert.Equal("OFFERED", assignment.Status);
 
         // 2. Accept assignment
-        var acceptResponse = await client.PostAsJsonAsync($"/api/assignments/{assignment.Id}/accept",
+        var acceptResponse = await client.PostAsJsonAsync($"/api/matching/assignments/{assignment.Id}/accept",
             new AcceptAssignmentRequest(driverId));
         Assert.Equal(HttpStatusCode.OK, acceptResponse.StatusCode);
 
         // 3. Verify driver is now busy
-        var driverResponse = await client.GetAsync($"/api/drivers/{driverId}");
+        var driverResponse = await client.GetAsync($"/api/matching/drivers/{driverId}");
         var driver = await driverResponse.Content.ReadFromJsonAsync<DriverResponse>();
         Assert.NotNull(driver);
         Assert.Equal("busy", driver.Status);
@@ -60,11 +60,11 @@ public sealed class AssignmentsControllerTests
 
         var driverId = await CreateAvailableDriverAsync(client, "0908000002");
 
-        var createResponse = await client.PostAsJsonAsync("/api/assignments",
+        var createResponse = await client.PostAsJsonAsync("/api/matching/assignments",
             new CreateAssignmentRequest(2002L, driverId, TimeSpan.FromMinutes(2)));
         var assignment = await createResponse.Content.ReadFromJsonAsync<DriverAssignmentResponse>();
 
-        var rejectResponse = await client.PostAsJsonAsync($"/api/assignments/{assignment!.Id}/reject",
+        var rejectResponse = await client.PostAsJsonAsync($"/api/matching/assignments/{assignment!.Id}/reject",
             new RejectAssignmentRequest(driverId));
         Assert.Equal(HttpStatusCode.OK, rejectResponse.StatusCode);
     }
@@ -81,21 +81,21 @@ public sealed class AssignmentsControllerTests
         const long tripId = 3001L;
 
         // Offer to both drivers
-        var offer1 = await client.PostAsJsonAsync("/api/assignments",
+        var offer1 = await client.PostAsJsonAsync("/api/matching/assignments",
             new CreateAssignmentRequest(tripId, driver1Id, TimeSpan.FromMinutes(2)));
         var assignment1 = await offer1.Content.ReadFromJsonAsync<DriverAssignmentResponse>();
 
-        var offer2 = await client.PostAsJsonAsync("/api/assignments",
+        var offer2 = await client.PostAsJsonAsync("/api/matching/assignments",
             new CreateAssignmentRequest(tripId, driver2Id, TimeSpan.FromMinutes(2)));
         var assignment2 = await offer2.Content.ReadFromJsonAsync<DriverAssignmentResponse>();
 
         // Driver 1 accepts
-        var accept1 = await client.PostAsJsonAsync($"/api/assignments/{assignment1!.Id}/accept",
+        var accept1 = await client.PostAsJsonAsync($"/api/matching/assignments/{assignment1!.Id}/accept",
             new AcceptAssignmentRequest(driver1Id));
         Assert.Equal(HttpStatusCode.OK, accept1.StatusCode);
 
         // Driver 2 tries to accept -> Conflict (409)
-        var accept2 = await client.PostAsJsonAsync($"/api/assignments/{assignment2!.Id}/accept",
+        var accept2 = await client.PostAsJsonAsync($"/api/matching/assignments/{assignment2!.Id}/accept",
             new AcceptAssignmentRequest(driver2Id));
         Assert.Equal(HttpStatusCode.Conflict, accept2.StatusCode);
     }
@@ -106,7 +106,7 @@ public sealed class AssignmentsControllerTests
         using var factory = new MatchingPricingApiFactory();
         using var client = factory.CreateClient();
 
-        var response = await client.PostAsJsonAsync("/api/pricing/estimate",
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/estimate",
             new EstimatePriceRequest(10.7725m, 106.6980m, 10.7950m, 106.7218m));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -123,7 +123,7 @@ public sealed class AssignmentsControllerTests
         using var factory = new MatchingPricingApiFactory();
         using var client = factory.CreateClient();
 
-        var response = await client.GetAsync("/matching/health");
+        var response = await client.GetAsync("/health");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
@@ -134,7 +134,7 @@ public sealed class AssignmentsControllerTests
         using var client = factory.CreateClient();
         await factory.InitializeDatabaseAsync();
 
-        var response = await client.PostAsJsonAsync("/api/assignments",
+        var response = await client.PostAsJsonAsync("/api/matching/assignments",
             new CreateAssignmentRequest(0, 0));
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

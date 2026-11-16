@@ -11,7 +11,7 @@ using Payment.Presentation.Contracts.Responses;
 namespace Payment.Presentation.Controllers;
 
 [ApiController]
-[Route("api/ledger-entries")]
+[Route("ledger-entries")]
 public sealed class LedgerEntriesController : ControllerBase
 {
     [HttpPost("payment")]

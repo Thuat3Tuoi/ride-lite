@@ -1,11 +1,17 @@
 using System.Text.Json.Serialization;
 using MatchingPricing.Infrastructure;
+using MatchingPricing.Presentation.Conventions;
 using MatchingPricing.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var routePrefix = builder.Configuration["RoutePrefix"] ?? "api/matching";
+
 // Presentation
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Conventions.Add(new GlobalRoutePrefixConvention(routePrefix));
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -23,7 +29,12 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.MapGet("/matching/health", () => Results.Ok(new 
+app.MapGet("/health", () => Results.Ok(new 
+{
+    status = "matchingpricing-service active"
+}));
+
+app.MapGet("/api/matching/health", () => Results.Ok(new 
 {
     status = "matchingpricing-service active"
 }));

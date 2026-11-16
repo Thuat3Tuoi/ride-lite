@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MatchingPricing.Presentation.Controllers;
 
 [ApiController]
-[Route("api/assignments")]
+[Route("assignments")]
 public sealed class AssignmentsController : ControllerBase
 {
     [HttpPost]

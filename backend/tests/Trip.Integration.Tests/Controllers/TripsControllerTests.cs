@@ -12,7 +12,7 @@ public sealed class TripsControllerTests
 {
     private static async Task<long> CreateRiderAsync(HttpClient client, string phone)
     {
-        var response = await client.PostAsJsonAsync("/api/riders", new CreateRiderRequest(
+        var response = await client.PostAsJsonAsync("/api/trip/riders", new CreateRiderRequest(
             "Test Rider",
             phone,
             new DateOnly(1993, 3, 3)
@@ -40,7 +40,7 @@ public sealed class TripsControllerTests
             ClientFare: 1000m // Client offers very low fare
         );
 
-        var response = await client.PostAsJsonAsync("/api/trips", request);
+        var response = await client.PostAsJsonAsync("/api/trip/trips", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<TripResponse>();
@@ -69,7 +69,7 @@ public sealed class TripsControllerTests
             DropoffLongitude: 106.72m
         );
 
-        var response = await client.PostAsJsonAsync("/api/trips", request);
+        var response = await client.PostAsJsonAsync("/api/trip/trips", request);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -83,31 +83,31 @@ public sealed class TripsControllerTests
         var riderId = await CreateRiderAsync(client, "0922000002");
 
         // 1. Create Trip (SEARCHING_DRIVER)
-        var createResponse = await client.PostAsJsonAsync("/api/trips", new CreateTripRequest(
+        var createResponse = await client.PostAsJsonAsync("/api/trip/trips", new CreateTripRequest(
             riderId, "Start", 10.77m, 106.69m, "End", 10.79m, 106.72m));
         var trip = await createResponse.Content.ReadFromJsonAsync<TripResponse>();
         Assert.NotNull(trip);
         var tripId = trip.Id;
 
         // 2. Accept Driver -> DRIVER_ACCEPTED
-        var acceptResponse = await client.PostAsJsonAsync($"/api/trips/{tripId}/accept-driver",
+        var acceptResponse = await client.PostAsJsonAsync($"/api/trip/trips/{tripId}/accept-driver",
             new AcceptTripDriverRequest(555L));
         Assert.Equal(HttpStatusCode.OK, acceptResponse.StatusCode);
 
         // 3. Driver Arrived -> DRIVER_ARRIVED
-        var arrivedResponse = await client.PostAsJsonAsync($"/api/trips/{tripId}/driver-arrived", new { });
+        var arrivedResponse = await client.PostAsJsonAsync($"/api/trip/trips/{tripId}/driver-arrived", new { });
         Assert.Equal(HttpStatusCode.OK, arrivedResponse.StatusCode);
 
         // 4. Start Trip -> IN_PROGRESS
-        var startResponse = await client.PostAsJsonAsync($"/api/trips/{tripId}/start", new { });
+        var startResponse = await client.PostAsJsonAsync($"/api/trip/trips/{tripId}/start", new { });
         Assert.Equal(HttpStatusCode.OK, startResponse.StatusCode);
 
         // 5. Complete Trip -> COMPLETED
-        var completeResponse = await client.PostAsJsonAsync($"/api/trips/{tripId}/complete", new { });
+        var completeResponse = await client.PostAsJsonAsync($"/api/trip/trips/{tripId}/complete", new { });
         Assert.Equal(HttpStatusCode.OK, completeResponse.StatusCode);
 
-        // 6. Verify final state via GET /api/trips/{id}
-        var getResponse = await client.GetAsync($"/api/trips/{tripId}");
+        // 6. Verify final state via GET /api/trip/trips/{id}
+        var getResponse = await client.GetAsync($"/api/trip/trips/{tripId}");
         var finalTrip = await getResponse.Content.ReadFromJsonAsync<TripResponse>();
         Assert.NotNull(finalTrip);
         Assert.Equal("COMPLETED", finalTrip.Status);
@@ -126,15 +126,15 @@ public sealed class TripsControllerTests
         await factory.InitializeDatabaseAsync();
 
         var riderId = await CreateRiderAsync(client, "0922000003");
-        var createResponse = await client.PostAsJsonAsync("/api/trips", new CreateTripRequest(
+        var createResponse = await client.PostAsJsonAsync("/api/trip/trips", new CreateTripRequest(
             riderId, "Start", 10.77m, 106.69m, "End", 10.79m, 106.72m));
         var trip = await createResponse.Content.ReadFromJsonAsync<TripResponse>();
 
-        var cancelResponse = await client.PostAsJsonAsync($"/api/trips/{trip!.Id}/cancel",
+        var cancelResponse = await client.PostAsJsonAsync($"/api/trip/trips/{trip!.Id}/cancel",
             new CancelTripRequest(CancelledBy.RIDER, "Found another ride"));
         Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);
 
-        var getResponse = await client.GetAsync($"/api/trips/{trip.Id}");
+        var getResponse = await client.GetAsync($"/api/trip/trips/{trip.Id}");
         var cancelledTrip = await getResponse.Content.ReadFromJsonAsync<TripResponse>();
         Assert.NotNull(cancelledTrip);
         Assert.Equal("CANCELLED", cancelledTrip.Status);
@@ -151,14 +151,14 @@ public sealed class TripsControllerTests
         await factory.InitializeDatabaseAsync();
 
         var riderId = await CreateRiderAsync(client, "0922000004");
-        var createResponse = await client.PostAsJsonAsync("/api/trips", new CreateTripRequest(
+        var createResponse = await client.PostAsJsonAsync("/api/trip/trips", new CreateTripRequest(
             riderId, "Start", 10.77m, 106.69m, "End", 10.79m, 106.72m));
         var trip = await createResponse.Content.ReadFromJsonAsync<TripResponse>();
 
-        var response = await client.PostAsJsonAsync($"/api/trips/{trip!.Id}/no-driver", new { });
+        var response = await client.PostAsJsonAsync($"/api/trip/trips/{trip!.Id}/no-driver", new { });
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var getResponse = await client.GetAsync($"/api/trips/{trip.Id}");
+        var getResponse = await client.GetAsync($"/api/trip/trips/{trip.Id}");
         var finalTrip = await getResponse.Content.ReadFromJsonAsync<TripResponse>();
         Assert.NotNull(finalTrip);
         Assert.Equal("NO_DRIVER_FOUND", finalTrip.Status);
@@ -170,7 +170,7 @@ public sealed class TripsControllerTests
         using var factory = new TripApiFactory();
         using var client = factory.CreateClient();
 
-        var response = await client.GetAsync("/trip/health");
+        var response = await client.GetAsync("/health");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }

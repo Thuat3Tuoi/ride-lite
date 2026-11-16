@@ -1,11 +1,17 @@
 using System.Text.Json.Serialization;
 using Payment.Infrastructure;
+using Payment.Presentation.Conventions;
 using Payment.Presentation.ExceptionHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var routePrefix = builder.Configuration["RoutePrefix"] ?? "api/payment";
+
 // Presentation
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Conventions.Add(new GlobalRoutePrefixConvention(routePrefix));
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -23,7 +29,12 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-app.MapGet("/payment/health", () => Results.Ok(new 
+app.MapGet("/health", () => Results.Ok(new 
+{
+    status = "payment-service active"
+}));
+
+app.MapGet("/api/payment/health", () => Results.Ok(new 
 {
     status = "payment-service active"
 }));

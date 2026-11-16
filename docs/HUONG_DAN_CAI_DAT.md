@@ -37,10 +37,10 @@ ride-lite/
 
 | Dịch vụ | Cổng HTTP | Database PostgreSQL | Health Check Endpoint |
 | :--- | :--- | :--- | :--- |
-| **ApiGateway** | `5000` | _Không có_ | `GET http://localhost:5000/` |
-| **Trip Service** | `5001` | `ridelite_trip` | `GET http://localhost:5001/trip/health` |
-| **MatchingPricing Service** | `5002` | `ridelite_matching_pricing` | `GET http://localhost:5002/matching/health` |
-| **Payment Service** | `5003` | `ridelite_payment` | `GET http://localhost:5003/payment/health` |
+| **ApiGateway** | `5000` | _Không có_ | `GET http://localhost:5000/health` |
+| **Trip Service** | `5001` | `ridelite_trip` | `GET http://localhost:5001/health` |
+| **MatchingPricing Service** | `5002` | `ridelite_matching_pricing` | `GET http://localhost:5002/health` |
+| **Payment Service** | `5003` | `ridelite_payment` | `GET http://localhost:5003/health` |
 
 ---
 
@@ -190,28 +190,28 @@ dotnet build RideLite.slnx --no-restore
 dotnet run --project src/Services/Trip/Trip.Presentation/Trip.Presentation.csproj --launch-profile http
 ```
 - Endpoint: `http://localhost:5001`
-- Kiểm tra trạng thái: `http://localhost:5001/trip/health`
+- Kiểm tra trạng thái: `http://localhost:5001/health`
 
 ### Terminal 2: Khởi chạy Matching & Pricing Service (Port 5002)
 ```bash
 dotnet run --project src/Services/MatchingPricing/MatchingPricing.Presentation/MatchingPricing.Presentation.csproj --launch-profile http
 ```
 - Endpoint: `http://localhost:5002`
-- Kiểm tra trạng thái: `http://localhost:5002/matching/health`
+- Kiểm tra trạng thái: `http://localhost:5002/health`
 
 ### Terminal 3: Khởi chạy Payment Service (Port 5003)
 ```bash
 dotnet run --project src/Services/Payment/Payment.Presentation/Payment.Presentation.csproj --launch-profile http
 ```
 - Endpoint: `http://localhost:5003`
-- Kiểm tra trạng thái: `http://localhost:5003/payment/health`
+- Kiểm tra trạng thái: `http://localhost:5003/health`
 
 ### Terminal 4: Khởi chạy ApiGateway (Port 5000)
 ```bash
 dotnet run --project src/Gateway/ApiGateway/ApiGateway.csproj --launch-profile http
 ```
 - Endpoint: `http://localhost:5000`
-- Kiểm tra trạng thái: `http://localhost:5000/`
+- Kiểm tra trạng thái: `http://localhost:5000/health` (hoặc `GET http://localhost:5000/`)
 
 > [!TIP]
 > Nhấn `Ctrl+C` tại từng cửa sổ terminal bất kỳ lúc nào để dừng dịch vụ đó.
@@ -225,19 +225,19 @@ Mở một terminal khác và dùng lệnh `curl` (hoặc mở trực tiếp tr�
 
 ```bash
 # Gateway
-curl -i http://localhost:5000/
-# Kết quả: 200 OK - "Hello World!"
+curl -i http://localhost:5000/health
+# Kết quả: 200 OK - {"status":"apigateway active"}
 
 # Trip Service
-curl -i http://localhost:5001/trip/health
+curl -i http://localhost:5001/health
 # Kết quả: {"status":"trip-service active"}
 
 # Matching & Pricing Service
-curl -i http://localhost:5002/matching/health
+curl -i http://localhost:5002/health
 # Kết quả: {"status":"matchingpricing-service active"}
 
 # Payment Service
-curl -i http://localhost:5003/payment/health
+curl -i http://localhost:5003/health
 # Kết quả: {"status":"payment-service active"}
 ```
 
@@ -261,11 +261,15 @@ Dự án đã đính kèm sẵn 3 bộ sưu tập Postman hoàn chỉnh ngay tro
    - Payment: `http://localhost:5003`
 3. Tiến hành gọi thử các request trong collection theo thứ tự từ trên xuống dưới.
 
+> [!TIP]
+> **Kiểm thử thông qua API Gateway (Single Entry Point)**:
+> Bạn có thể đặt `baseUrl` là `http://localhost:5000` (cổng của ApiGateway) cho bất kỳ collection nào để kiểm thử qua Gateway. Do hệ thống đã áp dụng tiền tố chuẩn `api/{service}`, API Gateway sẽ định tuyến trực tiếp và trong suốt tới đúng microservice tương ứng!
+
 ---
 
 ## 7. Chạy kiểm thử tự động (Testing)
 
-Dự án sở hữu **241 bài kiểm thử tự động** bao gồm cả Unit Tests (Domain, Application) và Integration Tests (Controllers, Repositories). Các bài kiểm thử tích hợp sử dụng cơ chế SQLite In-Memory, do đó **không phụ thuộc vào PostgreSQL**.
+Dự án sở hữu **499 bài kiểm thử tự động** bao gồm cả Unit Tests (Domain, Application) và Integration Tests (Controllers, Repositories). Các bài kiểm thử tích hợp sử dụng cơ chế SQLite In-Memory, do đó **không phụ thuộc vào PostgreSQL**.
 
 Từ thư mục `backend/`, chạy:
 

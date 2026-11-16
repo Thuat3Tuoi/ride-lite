@@ -32,7 +32,7 @@ Sau các đợt tái cấu trúc và bổ sung gần nhất, hệ thống RideLi
 | **4. Factory Pattern** | Khởi tạo đối tượng/State tập trung | `TripStateFactory` (TripState) + `PricingStrategyFactory` (Pricing) + Entity factories | <span style="color:green">**ĐẠT XUẤT SẮC**</span> |
 | **5. Strategy Pattern** | Tính giá theo nhiều chiến lược linh hoạt | `IPricingStrategy` (Regular, Surge, Discounted) + `PriceFormula` | <span style="color:green">**ĐẠT XUẤT SẮC**</span> |
 | **6. Công thức tính giá** | $p = ((c_d \cdot d + c_t \cdot t) \cdot s + c_m) \cdot \eta \cdot (1 + T)$ | Đã cài đặt chuẩn xác trong `PriceFormula.cs` và 3 Strategy | <span style="color:green">**ĐẠT XUẤT SẮC**</span> |
-| **7. API Gateway** | YARP Gateway, Reverse Proxy, Route aggregation | Đã có `ApiGateway` sử dụng YARP, tuy nhiên route `/thuatdv/trip` cần sửa thành `/trip` | <span style="color:orange">**ĐẠT MỘT PHẦN**</span> |
+| **7. API Gateway** | YARP Gateway, Reverse Proxy, Route aggregation | Đã có `ApiGateway` sử dụng YARP; định tuyến đầy đủ `/api/*`, `/health`, và route theo từng service (`/trip/*`, `/matching/*`, `/payment/*`) | <span style="color:green">**ĐẠT**</span> |
 | **8. Cơ sở dữ liệu** | Polyglot (SQL Server, MongoDB, PostgreSQL) | 3 DB riêng (`ridelite_trip`, `ridelite_matching_pricing`, `ridelite_payment`) trên PostgreSQL | <span style="color:green">**ĐẠT (Ngoại lệ)**</span> |
 | **9. Giao tiếp liên dịch vụ** | Đồng bộ REST hoặc Bất đồng bộ Message Broker | Các service hiện đứng độc lập; chưa có lời gọi tự động từ Trip sang Matching/Payment | <span style="color:red">**CHƯA ĐẠT**</span> |
 | **10. Docker & DevOps** | Dockerfile từng service, `docker-compose.yml` | Chưa có Dockerfile và docker-compose.yml | <span style="color:red">**CHƯA ĐẠT**</span> |
@@ -145,7 +145,7 @@ Sau các đợt tái cấu trúc và bổ sung gần nhất, hệ thống RideLi
     - [CalculateDiscountedPriceStrategy.cs](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Pricing/Strategies/CalculateDiscountedPriceStrategy.cs): Áp dụng mã khuyến mãi (theo % hoặc số tiền cố định) kèm giới hạn giảm tối đa.
   - **Dịch vụ & Endpoint**:
     - [PricingService.cs](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Services/MatchingPricing/MatchingPricing.Application/Features/Pricing/Services/PricingService.cs): Điều phối việc gọi Factory $\rightarrow$ Strategy.
-    - Endpoint `POST /api/pricing/calculate` trong [PricingController.cs](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/PricingController.cs).
+    - Endpoint `POST /api/matching/pricing/calculate` trong [PricingController.cs](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Services/MatchingPricing/MatchingPricing.Presentation/Controllers/PricingController.cs).
   - **Kiểm thử**: Đầy đủ Unit Tests (`PricingFormulaTests`, `PricingStrategyTests`) và Integration Tests (`PricingControllerTests`).
 - **Kết luận**: **ĐẠT XUẤT SẮC**.
 
@@ -185,18 +185,17 @@ Sau các đợt tái cấu trúc và bổ sung gần nhất, hệ thống RideLi
 ### Mục 8: API Gateway & Định tuyến YARP
 - **Yêu cầu đề tài**:
   - Sử dụng API Gateway làm Single Entry Point cho toàn bộ hệ thống client (Mobile/Web).
-  - Định tuyến các request `/api/trips/*` $\rightarrow$ Trip Service, `/api/matching/*` $\rightarrow$ MatchingPricing Service, `/api/payments/*` $\rightarrow$ Payment Service.
+  - Định tuyến các request `/api/trip/*` $\rightarrow$ Trip Service, `/api/matching/*` $\rightarrow$ MatchingPricing Service, `/api/payment/*` $\rightarrow$ Payment Service.
 - **Hiện trạng mã nguồn**:
   - Đã có dự án [ApiGateway](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Gateway/ApiGateway) sử dụng YARP (Reverse Proxy).
-  - *Tồn tại cần khắc phục*:
-    - Trong [appsettings.json](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Gateway/ApiGateway/appsettings.json#L7-L13), route cho Trip Service đang bị gán cứng đường dẫn theo tên cá nhân:
-      ```json
-      "Match": {
-        "Path": "/thuatdv/trip/{**catch-all}"
-      }
-      ```
-      Cần chuẩn hóa lại thành `/trip/{**catch-all}` hoặc `/api/trips/{**catch-all}` để đồng bộ với các service khác (`/pricing/{**catch-all}`, `/payment/{**catch-all}`).
-- **Kết luận**: **ĐẠT MỘT PHẦN** (cần sửa config route).
+  - Cấu hình tiền tố tự động phong cách Java (`GlobalRoutePrefixConvention`) được cấu hình tập trung trong `appsettings.json` của mỗi service (`RoutePrefix`), các Controller chỉ cần khai báo ngắn gọn tên tài nguyên (`[Route("trips")]`, `[Route("drivers")]`, `[Route("payments")]`).
+  - Cấu hình [appsettings.json](file:///run/media/thuatdv/16AAC624AAC5FFEB/SGU/Nam4/Ki_1/T2-Chieu-KTPM/ride-lite/backend/src/Gateway/ApiGateway/appsettings.json) tại API Gateway định tuyến trong suốt và chuẩn xác:
+    - `/api/trip/{**catch-all}` $\rightarrow$ Trip Service (`http://localhost:5001`).
+    - `/api/matching/{**catch-all}` $\rightarrow$ MatchingPricing Service (`http://localhost:5002`).
+    - `/api/payment/{**catch-all}` $\rightarrow$ Payment Service (`http://localhost:5003`).
+    - Hỗ trợ định tuyến tương thích ngược theo tiền tố ngắn (`/trip/*`, `/matching/*`, `/payment/*`).
+    - Chuẩn hóa toàn bộ endpoint Health Check (`/health` và `/api/{service}/health`).
+- **Kết luận**: <span style="color:green">**ĐẠT**</span>.
 
 ---
 
@@ -318,7 +317,7 @@ public override void Accept(Trip trip, ITripStateFactory factory)
       IPricingStrategy GetStrategy(PricingMethod method);
   }
   ```
-- **Controller Endpoint**: `POST /api/pricing/calculate` trả về chi tiết giá gốc, thuế, khuyến mãi, cước cuối cùng.
+- **Controller Endpoint**: `POST /api/matching/pricing/calculate` trả về chi tiết giá gốc, thuế, khuyến mãi, cước cuối cùng.
 
 ---
 
@@ -343,20 +342,8 @@ flowchart LR
 
 ### ƯU TIÊN 1: HOÀN THIỆN NGAY ĐỂ ĐẠT ĐIỂM TỐI ĐA BẮT BUỘC
 
-#### Đề xuất 1: Sửa Route YARP API Gateway
-- **Vấn đề**: Route của Trip Service đang để `/thuatdv/trip/{**catch-all}`.
-- **Giải pháp**: Sửa trong `backend/src/Gateway/ApiGateway/appsettings.json`:
-  ```json
-  "trip-route": {
-    "ClusterId": "trip-cluster",
-    "Match": {
-      "Path": "/trip/{**catch-all}"
-    },
-    "Transforms": [
-      { "PathRemovePrefix": "/trip" }
-    ]
-  }
-  ```
+#### Đề xuất 1: Sửa Route YARP API Gateway [ĐÃ HOÀN THÀNH ✅]
+- **Trạng thái**: Đã chuẩn hóa toàn bộ route trong `backend/src/Gateway/ApiGateway/appsettings.json`, hỗ trợ cả Single Entry Point REST Facade (`/api/*`), Health Check endpoints, và định tuyến theo tiền tố microservice (`/trip/*`, `/matching/*`, `/payment/*`).
 
 #### Đề xuất 2: Đóng gói Docker & Docker Compose
 - **Mục tiêu**: Giúp giảng viên hoặc bất kỳ ai chỉ cần clone repo và gõ `docker compose up -d` là toàn bộ hệ thống hoạt động ngay lập tức mà không cần cài đặt .NET SDK hay PostgreSQL trên máy chủ.

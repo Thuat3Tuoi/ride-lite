@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MatchingPricing.Presentation.Controllers;
 
 [ApiController]
-[Route("api/pricing")]
+[Route("pricing")]
 public sealed class PricingController : ControllerBase
 {
     [HttpPost("calculate")]

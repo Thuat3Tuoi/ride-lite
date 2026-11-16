@@ -12,7 +12,7 @@ using Payment.Presentation.Contracts.Responses;
 namespace Payment.Presentation.Controllers;
 
 [ApiController]
-[Route("api/payment-methods")]
+[Route("payment-methods")]
 public sealed class PaymentMethodsController : ControllerBase
 {
     [HttpPost]

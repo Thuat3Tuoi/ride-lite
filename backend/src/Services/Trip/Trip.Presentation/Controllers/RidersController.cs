@@ -11,7 +11,7 @@ using Trip.Presentation.Contracts.Responses;
 namespace Trip.Presentation.Controllers;
 
 [ApiController]
-[Route("api/riders")]
+[Route("riders")]
 public sealed class RidersController : ControllerBase
 {
     [HttpPost]

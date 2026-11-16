@@ -19,7 +19,7 @@ using Trip.Presentation.Contracts.Responses;
 namespace Trip.Presentation.Controllers;
 
 [ApiController]
-[Route("api/trips")]
+[Route("trips")]
 public sealed class TripsController : ControllerBase
 {
     [HttpPost]

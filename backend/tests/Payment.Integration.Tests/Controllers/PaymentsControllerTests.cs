@@ -30,7 +30,7 @@ public sealed class PaymentsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/payments", request);
+        var response = await client.PostAsJsonAsync("/api/payment/payments", request);
 
         // Assert HTTP response
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -69,11 +69,11 @@ public sealed class PaymentsControllerTests
         };
 
         // Tạo lần đầu
-        var firstResponse = await client.PostAsJsonAsync("/api/payments", request);
+        var firstResponse = await client.PostAsJsonAsync("/api/payment/payments", request);
         Assert.Equal(HttpStatusCode.Created, firstResponse.StatusCode);
 
         // Tạo lại bằng cùng idempotency key
-        var secondResponse = await client.PostAsJsonAsync("/api/payments", request);
+        var secondResponse = await client.PostAsJsonAsync("/api/payment/payments", request);
         Assert.Equal(HttpStatusCode.Conflict, secondResponse.StatusCode);
 
         // Database vẫn chỉ có 1 Payment
@@ -99,7 +99,7 @@ public sealed class PaymentsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/payments", request);
+        var response = await client.PostAsJsonAsync("/api/payment/payments", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -125,7 +125,7 @@ public sealed class PaymentsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/payments", request);
+        var response = await client.PostAsJsonAsync("/api/payment/payments", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -151,12 +151,12 @@ public sealed class PaymentsControllerTests
             IdempotencyKey = "get-by-id-key"
         };
 
-        var createResponse = await client.PostAsJsonAsync("/api/payments", createRequest);
+        var createResponse = await client.PostAsJsonAsync("/api/payment/payments", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreatePaymentResponse>();
         Assert.NotNull(created);
 
         // Act
-        var getResponse = await client.GetAsync($"/api/payments/{created.Id}");
+        var getResponse = await client.GetAsync($"/api/payment/payments/{created.Id}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
@@ -176,7 +176,7 @@ public sealed class PaymentsControllerTests
         await factory.InitializeDatabaseAsync();
 
         // Act
-        var response = await client.GetAsync("/api/payments/9999");
+        var response = await client.GetAsync("/api/payment/payments/9999");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -198,12 +198,12 @@ public sealed class PaymentsControllerTests
             IdempotencyKey = "process-test-key"
         };
 
-        var createResponse = await client.PostAsJsonAsync("/api/payments", createRequest);
+        var createResponse = await client.PostAsJsonAsync("/api/payment/payments", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreatePaymentResponse>();
         Assert.NotNull(created);
 
         // Act
-        var processResponse = await client.PostAsync($"/api/payments/{created.Id}/process", null);
+        var processResponse = await client.PostAsync($"/api/payment/payments/{created.Id}/process", null);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, processResponse.StatusCode);
@@ -236,7 +236,7 @@ public sealed class PaymentsControllerTests
             IdempotencyKey = "complete-test-key"
         };
 
-        var createResponse = await client.PostAsJsonAsync("/api/payments", createRequest);
+        var createResponse = await client.PostAsJsonAsync("/api/payment/payments", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreatePaymentResponse>();
         Assert.NotNull(created);
 
@@ -248,7 +248,7 @@ public sealed class PaymentsControllerTests
         };
 
         // Act
-        var completeResponse = await client.PostAsJsonAsync($"/api/payments/{created.Id}/complete", completeRequest);
+        var completeResponse = await client.PostAsJsonAsync($"/api/payment/payments/{created.Id}/complete", completeRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, completeResponse.StatusCode);
@@ -284,12 +284,12 @@ public sealed class PaymentsControllerTests
             IdempotencyKey = "cancel-test-key"
         };
 
-        var createResponse = await client.PostAsJsonAsync("/api/payments", createRequest);
+        var createResponse = await client.PostAsJsonAsync("/api/payment/payments", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<CreatePaymentResponse>();
         Assert.NotNull(created);
 
         // Act
-        var cancelResponse = await client.PostAsync($"/api/payments/{created.Id}/cancel", null);
+        var cancelResponse = await client.PostAsync($"/api/payment/payments/{created.Id}/cancel", null);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);

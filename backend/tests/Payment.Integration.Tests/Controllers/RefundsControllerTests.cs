@@ -23,7 +23,7 @@ public sealed class RefundsControllerTests
             IdempotencyKey = Guid.NewGuid().ToString()
         };
 
-        var response = await client.PostAsJsonAsync("/api/payments", paymentRequest);
+        var response = await client.PostAsJsonAsync("/api/payment/payments", paymentRequest);
         var result = await response.Content.ReadFromJsonAsync<CreatePaymentResponse>();
         return result!.Id;
     }
@@ -47,7 +47,7 @@ public sealed class RefundsControllerTests
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/refunds", request);
+        var response = await client.PostAsJsonAsync("/api/payment/refunds", request);
 
         // Assert HTTP response
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -87,11 +87,11 @@ public sealed class RefundsControllerTests
         };
 
         // Tạo lần đầu
-        var firstResponse = await client.PostAsJsonAsync("/api/refunds", request);
+        var firstResponse = await client.PostAsJsonAsync("/api/payment/refunds", request);
         Assert.Equal(HttpStatusCode.Created, firstResponse.StatusCode);
 
         // Tạo lại bằng cùng idempotency key
-        var secondResponse = await client.PostAsJsonAsync("/api/refunds", request);
+        var secondResponse = await client.PostAsJsonAsync("/api/payment/refunds", request);
         Assert.Equal(HttpStatusCode.Conflict, secondResponse.StatusCode);
 
         // Database chỉ có 1 record refund
@@ -118,12 +118,12 @@ public sealed class RefundsControllerTests
             Reason = "Partial refund"
         };
 
-        var createResponse = await client.PostAsJsonAsync("/api/refunds", request);
+        var createResponse = await client.PostAsJsonAsync("/api/payment/refunds", request);
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRefundResponse>();
         Assert.NotNull(created);
 
         // Act
-        var getResponse = await client.GetAsync($"/api/refunds/{created.Id}");
+        var getResponse = await client.GetAsync($"/api/payment/refunds/{created.Id}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
@@ -143,7 +143,7 @@ public sealed class RefundsControllerTests
         await factory.InitializeDatabaseAsync();
 
         // Act
-        var response = await client.GetAsync("/api/refunds/9999");
+        var response = await client.GetAsync("/api/payment/refunds/9999");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

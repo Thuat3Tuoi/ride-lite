@@ -24,7 +24,7 @@ public sealed class DriversControllerTests
             DriverStatus.offline
         );
 
-        var response = await client.PostAsJsonAsync("/api/drivers", request);
+        var response = await client.PostAsJsonAsync("/api/matching/drivers", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<DriverResponse>();
@@ -43,10 +43,10 @@ public sealed class DriversControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request1 = new CreateDriverRequest("D1", "0909000002");
-        await client.PostAsJsonAsync("/api/drivers", request1);
+        await client.PostAsJsonAsync("/api/matching/drivers", request1);
 
         var request2 = new CreateDriverRequest("D2", "0909000002");
-        var response = await client.PostAsJsonAsync("/api/drivers", request2);
+        var response = await client.PostAsJsonAsync("/api/matching/drivers", request2);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
@@ -59,22 +59,22 @@ public sealed class DriversControllerTests
         await factory.InitializeDatabaseAsync();
 
         // 1. Create driver
-        var createResponse = await client.PostAsJsonAsync("/api/drivers",
+        var createResponse = await client.PostAsJsonAsync("/api/matching/drivers",
             new CreateDriverRequest("Online Driver", "0909000003"));
         var driver = await createResponse.Content.ReadFromJsonAsync<DriverResponse>();
 
         // 2. Go online (available)
-        var statusResponse = await client.PostAsJsonAsync($"/api/drivers/{driver!.Id}/status",
+        var statusResponse = await client.PostAsJsonAsync($"/api/matching/drivers/{driver!.Id}/status",
             new UpdateDriverStatusRequest(DriverStatus.available));
         Assert.Equal(HttpStatusCode.OK, statusResponse.StatusCode);
 
         // 3. Update location
-        var locationResponse = await client.PostAsJsonAsync($"/api/drivers/{driver.Id}/location",
+        var locationResponse = await client.PostAsJsonAsync($"/api/matching/drivers/{driver.Id}/location",
             new UpdateDriverLocationRequest(10.7725m, 106.6980m));
         Assert.Equal(HttpStatusCode.OK, locationResponse.StatusCode);
 
         // 4. Query nearby
-        var nearbyResponse = await client.GetAsync("/api/drivers/nearby?pickupLatitude=10.7730&pickupLongitude=106.6990&radiusKm=5");
+        var nearbyResponse = await client.GetAsync("/api/matching/drivers/nearby?pickupLatitude=10.7730&pickupLongitude=106.6990&radiusKm=5");
         Assert.Equal(HttpStatusCode.OK, nearbyResponse.StatusCode);
 
         var nearbyList = await nearbyResponse.Content.ReadFromJsonAsync<IReadOnlyList<NearbyDriverResponse>>();
@@ -91,7 +91,7 @@ public sealed class DriversControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request = new CreateDriverRequest("", "invalid-phone");
-        var response = await client.PostAsJsonAsync("/api/drivers", request);
+        var response = await client.PostAsJsonAsync("/api/matching/drivers", request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -103,7 +103,7 @@ public sealed class DriversControllerTests
         using var client = factory.CreateClient();
         await factory.InitializeDatabaseAsync();
 
-        var response = await client.GetAsync("/api/drivers/99999");
+        var response = await client.GetAsync("/api/matching/drivers/99999");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }

@@ -32,9 +32,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/matching/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["matching", "health"]
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         }
@@ -72,9 +76,15 @@
               "raw": "{\n  \"fullName\": \"Le Van Driver\",\n  \"phoneNumber\": \"0901234567\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"status\": \"offline\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/drivers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers"]
+              "raw": "{{baseUrl}}/api/matching/drivers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "drivers"
+              ]
             }
           }
         },
@@ -84,9 +94,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "{{driverId}}"]
+              "raw": "{{baseUrl}}/api/matching/drivers/{{driverId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "drivers",
+                "{{driverId}}"
+              ]
             }
           }
         },
@@ -105,9 +122,17 @@
               "raw": "{\n  \"latitude\": 10.7725,\n  \"longitude\": 106.6980\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/drivers/{{driverId}}/location",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "{{driverId}}", "location"]
+              "raw": "{{baseUrl}}/api/matching/drivers/{{driverId}}/location",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "drivers",
+                "{{driverId}}",
+                "location"
+              ]
             }
           }
         },
@@ -126,9 +151,17 @@
               "raw": "{\n  \"status\": \"available\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/drivers/{{driverId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "{{driverId}}", "status"]
+              "raw": "{{baseUrl}}/api/matching/drivers/{{driverId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "drivers",
+                "{{driverId}}",
+                "status"
+              ]
             }
           }
         },
@@ -138,14 +171,33 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/drivers/nearby?pickupLatitude=10.7730&pickupLongitude=106.6990&radiusKm=5&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "drivers", "nearby"],
+              "raw": "{{baseUrl}}/api/matching/drivers/nearby?pickupLatitude=10.7730&pickupLongitude=106.6990&radiusKm=5&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "drivers",
+                "nearby"
+              ],
               "query": [
-                { "key": "pickupLatitude", "value": "10.7730" },
-                { "key": "pickupLongitude", "value": "106.6990" },
-                { "key": "radiusKm", "value": "5" },
-                { "key": "limit", "value": "10" }
+                {
+                  "key": "pickupLatitude",
+                  "value": "10.7730"
+                },
+                {
+                  "key": "pickupLongitude",
+                  "value": "106.6990"
+                },
+                {
+                  "key": "radiusKm",
+                  "value": "5"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
               ]
             }
           }
@@ -184,9 +236,15 @@
               "raw": "{\n  \"tripId\": 1001,\n  \"driverId\": {{driverId}},\n  \"offerDuration\": \"00:01:00\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/assignments",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments"]
+              "raw": "{{baseUrl}}/api/matching/assignments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "assignments"
+              ]
             }
           }
         },
@@ -196,9 +254,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/assignments/trip/1001",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "trip", "1001"]
+              "raw": "{{baseUrl}}/api/matching/assignments/trip/1001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "assignments",
+                "trip",
+                "1001"
+              ]
             }
           }
         },
@@ -217,9 +283,17 @@
               "raw": "{\n  \"driverId\": {{driverId}}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/accept",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{assignmentId}}", "accept"]
+              "raw": "{{baseUrl}}/api/matching/assignments/{{assignmentId}}/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "assignments",
+                "{{assignmentId}}",
+                "accept"
+              ]
             }
           }
         },
@@ -238,9 +312,17 @@
               "raw": "{\n  \"driverId\": {{driverId}}\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/assignments/{{assignmentId}}/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "assignments", "{{assignmentId}}", "reject"]
+              "raw": "{{baseUrl}}/api/matching/assignments/{{assignmentId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "assignments",
+                "{{assignmentId}}",
+                "reject"
+              ]
             }
           }
         }
@@ -264,9 +346,16 @@
               "raw": "{\n  \"pickupLatitude\": 10.7725,\n  \"pickupLongitude\": 106.6980,\n  \"dropoffLatitude\": 10.7950,\n  \"dropoffLongitude\": 106.7218\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/pricing/estimate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pricing", "estimate"]
+              "raw": "{{baseUrl}}/api/matching/pricing/estimate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "pricing",
+                "estimate"
+              ]
             }
           }
         },
@@ -285,9 +374,16 @@
               "raw": "{\n  \"costPerDistance\": 10000,\n  \"distance\": 5.5,\n  \"costPerTime\": 1000,\n  \"estimatedTime\": 12,\n  \"additionalFee\": 5000,\n  \"taxRate\": 0.10,\n  \"pricingMethod\": \"Regular\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/pricing/calculate",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pricing", "calculate"]
+              "raw": "{{baseUrl}}/api/matching/pricing/calculate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "matching",
+                "pricing",
+                "calculate"
+              ]
             }
           }
         }
@@ -295,4 +391,3 @@
     }
   ]
 }
-

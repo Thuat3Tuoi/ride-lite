@@ -17,7 +17,7 @@ public sealed class PricingControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request = new EstimatePriceRequest(10.7725m, 106.6980m, 10.7900m, 106.7200m);
-        var response = await client.PostAsJsonAsync("/api/pricing/estimate", request);
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/estimate", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<EstimatePriceResponse>();
@@ -35,7 +35,7 @@ public sealed class PricingControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request = new EstimatePriceRequest(999m, 106.6980m, 10.7900m, 106.7200m);
-        var response = await client.PostAsJsonAsync("/api/pricing/estimate", request);
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/estimate", request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -57,7 +57,7 @@ public sealed class PricingControllerTests
             PricingMethod: Domain.Enumerators.PricingMethod.Regular
         );
 
-        var response = await client.PostAsJsonAsync("/api/pricing/calculate", request);
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/calculate", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<CalculatePriceResponse>();
@@ -83,7 +83,7 @@ public sealed class PricingControllerTests
             PricingMethod: Domain.Enumerators.PricingMethod.Surge
         );
 
-        var response = await client.PostAsJsonAsync("/api/pricing/calculate", request);
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/calculate", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<CalculatePriceResponse>();
@@ -109,7 +109,7 @@ public sealed class PricingControllerTests
             PricingMethod: Domain.Enumerators.PricingMethod.Regular
         );
 
-        var response = await client.PostAsJsonAsync("/api/pricing/calculate", request);
+        var response = await client.PostAsJsonAsync("/api/matching/pricing/calculate", request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

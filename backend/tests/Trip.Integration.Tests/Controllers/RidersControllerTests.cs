@@ -22,7 +22,7 @@ public sealed class RidersControllerTests
             new DateOnly(1990, 5, 15)
         );
 
-        var response = await client.PostAsJsonAsync("/api/riders", request);
+        var response = await client.PostAsJsonAsync("/api/trip/riders", request);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<RiderResponse>();
@@ -41,10 +41,10 @@ public sealed class RidersControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request1 = new CreateRiderRequest("Rider 1", "0911000002");
-        await client.PostAsJsonAsync("/api/riders", request1);
+        await client.PostAsJsonAsync("/api/trip/riders", request1);
 
         var request2 = new CreateRiderRequest("Rider 2", "0911000002");
-        var response = await client.PostAsJsonAsync("/api/riders", request2);
+        var response = await client.PostAsJsonAsync("/api/trip/riders", request2);
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
@@ -57,10 +57,10 @@ public sealed class RidersControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request = new CreateRiderRequest("Rider Get", "0911000003");
-        var createResponse = await client.PostAsJsonAsync("/api/riders", request);
+        var createResponse = await client.PostAsJsonAsync("/api/trip/riders", request);
         var created = await createResponse.Content.ReadFromJsonAsync<RiderResponse>();
 
-        var response = await client.GetAsync($"/api/riders/{created!.Id}");
+        var response = await client.GetAsync($"/api/trip/riders/{created!.Id}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<RiderResponse>();
@@ -75,7 +75,7 @@ public sealed class RidersControllerTests
         using var client = factory.CreateClient();
         await factory.InitializeDatabaseAsync();
 
-        var response = await client.GetAsync("/api/riders/999999");
+        var response = await client.GetAsync("/api/trip/riders/999999");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -87,11 +87,11 @@ public sealed class RidersControllerTests
         await factory.InitializeDatabaseAsync();
 
         var request = new CreateRiderRequest("Before Update", "0911000004");
-        var createResponse = await client.PostAsJsonAsync("/api/riders", request);
+        var createResponse = await client.PostAsJsonAsync("/api/trip/riders", request);
         var created = await createResponse.Content.ReadFromJsonAsync<RiderResponse>();
 
         var updateRequest = new UpdateRiderProfileRequest("After Update", "0911000004", new DateOnly(1992, 2, 2));
-        var response = await client.PutAsJsonAsync($"/api/riders/{created!.Id}", updateRequest);
+        var response = await client.PutAsJsonAsync($"/api/trip/riders/{created!.Id}", updateRequest);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<RiderResponse>();
