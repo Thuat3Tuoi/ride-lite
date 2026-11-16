@@ -11,7 +11,10 @@ Hệ thống bao gồm 3 dịch vụ nghiệp vụ độc lập, 1 cổng API Ga
 - **Payment Service**: Xử lý giao dịch thanh toán chuyến đi, hỗ trợ nhiều cổng thanh toán (Payment Provider) & phương thức thanh toán, hoàn tiền (Refund), ghi chép sổ cái giao dịch (Ledger Entries).
 - **SharedKernel**: Thư viện hạt nhân dùng chung định nghĩa lỗi tập trung (`ErrorCode`, `ErrorType`, `AppException`).
 
-Thành viên mới vui lòng xem [Hướng dẫn cài đặt và cấu hình chi tiết](docs/HUONG_DAN_CAI_DAT.md) để chuẩn bị môi trường, cơ sở dữ liệu và chạy toàn bộ dịch vụ.
+Thành viên mới vui lòng xem các tài liệu hướng dẫn và báo cáo trong thư mục `docs/`:
+- [Hướng dẫn cài đặt và cấu hình chi tiết](docs/HUONG_DAN_CAI_DAT.md): Chuẩn bị môi trường, cơ sở dữ liệu và chạy toàn bộ dịch vụ.
+- [Báo cáo đối chiếu yêu cầu kiến trúc phần mềm](docs/BAO_CAO_DOI_CHIEU_YEU_CAU.md): Đối chiếu chi tiết đề bài PDF với mã nguồn, phân tích mẫu thiết kế (State, Factory, Strategy) và đề xuất cải tiến.
+- [Đặc tả yêu cầu môn học (PDF)](docs/RideLite-KienTrucPhanMem.pdf): Tài liệu gốc môn Kiến trúc Phần mềm (SGU).
 
 ---
 
@@ -32,12 +35,15 @@ ride-lite/
 │   │       ├── Trip/                                   # Dịch vụ Chuyến đi (Port 5001)
 │   │       ├── MatchingPricing/                        # Dịch vụ Ghép tài xế & Giá (Port 5002)
 │   │       └── Payment/                                # Dịch vụ Thanh toán & Hoàn tiền (Port 5003)
-│   ├── tests/                                          # 9 dự án kiểm thử xUnit (241 test cases)
+│   ├── tests/                                          # 9 dự án kiểm thử xUnit (499 test cases passed 100%)
 │   ├── Trip_Service.postman_collection.json            # Collection Postman cho Trip Service
 │   ├── Matching_Pricing_Service.postman_collection.json# Collection Postman cho Matching & Pricing Service
 │   └── Payment_Service.postman_collection.json         # Collection Postman cho Payment Service
-├── docs/
-│   └── HUONG_DAN_CAI_DAT.md                            # Hướng dẫn cài đặt & cấu hình chi tiết
+├── docs/                                               # Thư mục chứa toàn bộ văn bản và tài liệu dự án
+│   ├── README.md                                       # Danh mục và tóm tắt tài liệu
+│   ├── BAO_CAO_DOI_CHIEU_YEU_CAU.md                   # Báo cáo đối chiếu yêu cầu kiến trúc & mã nguồn
+│   ├── HUONG_DAN_CAI_DAT.md                            # Hướng dẫn cài đặt & cấu hình chi tiết
+│   └── RideLite-KienTrucPhanMem.pdf                   # Đề tài môn học Kiến trúc Phần mềm (SGU)
 └── README.md                                           # Giới thiệu tổng quan dự án
 ```
 
