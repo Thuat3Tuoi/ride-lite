@@ -269,6 +269,27 @@
               "path": ["api", "pricing", "estimate"]
             }
           }
+        },
+        {
+          "name": "Calculate Trip Price (Strategy & Factory)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"costPerDistance\": 10000,\n  \"distance\": 5.5,\n  \"costPerTime\": 1000,\n  \"estimatedTime\": 12,\n  \"additionalFee\": 5000,\n  \"taxRate\": 0.10,\n  \"pricingMethod\": \"Regular\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pricing/calculate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pricing", "calculate"]
+            }
+          }
         }
       ]
     }

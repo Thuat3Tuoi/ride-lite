@@ -1,12 +1,16 @@
 using MatchingPricing.Application.Abstractions.Pricing;
+using MatchingPricing.Domain.Enumerators;
 
 namespace MatchingPricing.Infrastructure.Services.Pricing;
 
 public sealed class PricingCalculator : IPricingCalculator
 {
-    private const decimal BaseFare = 15000m;
-    private const decimal BaseDistanceKm = 2.0m;
-    private const decimal RatePerKm = 10000m;
+    private readonly IPricingService _pricingService;
+
+    public PricingCalculator(IPricingService pricingService)
+    {
+        _pricingService = pricingService;
+    }
 
     public decimal CalculateFare(
         decimal pickupLatitude,
@@ -14,23 +18,24 @@ public sealed class PricingCalculator : IPricingCalculator
         decimal dropoffLatitude,
         decimal dropoffLongitude)
     {
-        var distanceKm = CalculateHaversineDistance(
+        var distanceKm = (decimal)CalculateHaversineDistance(
             (double)pickupLatitude,
             (double)pickupLongitude,
             (double)dropoffLatitude,
             (double)dropoffLongitude
         );
 
-        decimal fare = BaseFare;
-        var decimalDistance = (decimal)distanceKm;
+        var estimatedTimeMinutes = Math.Max(5m, Math.Round(distanceKm * 2.5m, 1));
 
-        if (decimalDistance > BaseDistanceKm)
-        {
-            var extraDistance = decimalDistance - BaseDistanceKm;
-            fare += extraDistance * RatePerKm;
-        }
-
-        return Math.Round(fare, 0, MidpointRounding.AwayFromZero);
+        return _pricingService.CalculateTripPrice(
+            costPerDistance: 10000m,
+            distance: distanceKm,
+            costPerTime: 500m,
+            estimatedTime: estimatedTimeMinutes,
+            additionalFee: 0m,
+            taxRate: 0.08m,
+            pricingMethod: PricingMethod.Regular
+        );
     }
 
     private static double CalculateHaversineDistance(double lat1, double lon1, double lat2, double lon2)

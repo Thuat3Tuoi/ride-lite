@@ -10,7 +10,11 @@ using MatchingPricing.Application.Features.Driver.Commands.UpdateDriverLocation;
 using MatchingPricing.Application.Features.Driver.Commands.UpdateDriverStatus;
 using MatchingPricing.Application.Features.Driver.Queries.FindNearbyDrivers;
 using MatchingPricing.Application.Features.Driver.Queries.GetDriverById;
+using MatchingPricing.Application.Features.Pricing.Factory;
+using MatchingPricing.Application.Features.Pricing.Queries.CalculatePrice;
 using MatchingPricing.Application.Features.Pricing.Queries.EstimatePrice;
+using MatchingPricing.Application.Features.Pricing.Services;
+using MatchingPricing.Application.Features.Pricing.Strategies;
 using MatchingPricing.Infrastructure.Data.DataContext;
 using MatchingPricing.Infrastructure.Data.Repositories;
 using MatchingPricing.Infrastructure.Services.Pricing;
@@ -38,6 +42,15 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<IDriverRepository, DriverRepository>();
         services.AddScoped<IDriverAssignmentRepository, DriverAssignmentRepository>();
+
+        // Pricing Strategies & Factory
+        services.AddSingleton<IPricingStrategy, CalculateRegularPriceStrategy>();
+        services.AddSingleton<IPricingStrategy, CalculateSurgePriceStrategy>();
+        services.AddSingleton<IPricingStrategy, CalculateDiscountedPriceStrategy>();
+        services.AddSingleton<IPricingStrategyFactory, PricingStrategyFactory>();
+
+        // Pricing Service
+        services.AddScoped<IPricingService, PricingService>();
 
         // Pricing Calculator
         services.AddScoped<IPricingCalculator, PricingCalculator>();
@@ -68,6 +81,7 @@ public static class DependencyInjection
 
         // Pricing Handlers
         services.AddScoped<EstimatePriceHandler>();
+        services.AddScoped<CalculatePriceHandler>();
 
         return services;
     }
